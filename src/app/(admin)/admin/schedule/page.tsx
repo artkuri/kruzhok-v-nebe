@@ -2,17 +2,24 @@ import { prisma } from "@/lib/prisma";
 import { DAY_NAMES_FULL } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users } from "lucide-react";
+import { AssignSlotTeacherSelect } from "@/components/features/admin/assign-slot-teacher-select";
 
 export const metadata = { title: "Расписание" };
 
 export default async function AdminSchedulePage() {
-  const slots = await prisma.scheduleSlot.findMany({
-    include: {
-      direction: true,
-      teacher: { include: { user: true } },
-    },
-    orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
-  });
+  const [slots, teachers] = await Promise.all([
+    prisma.scheduleSlot.findMany({
+      include: {
+        direction: true,
+        teacher: { include: { user: true } },
+      },
+      orderBy: [{ dayOfWeek: "asc" }, { startTime: "asc" }],
+    }),
+    prisma.teacher.findMany({
+      where: { isActive: true },
+      include: { user: true },
+    }),
+  ]);
 
   const byDay = slots.reduce<Record<number, typeof slots>>((acc, s) => {
     if (!acc[s.dayOfWeek]) acc[s.dayOfWeek] = [];
@@ -64,11 +71,11 @@ export default async function AdminSchedulePage() {
                     <Users className="h-3.5 w-3.5" />
                     до {slot.maxStudents} чел.
                   </div>
-                  {slot.teacher && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      {slot.teacher.user.name}
-                    </p>
-                  )}
+                  <AssignSlotTeacherSelect
+                    slotId={slot.id}
+                    currentTeacherId={slot.teacherId}
+                    teachers={teachers}
+                  />
                 </div>
               ))}
             </div>
