@@ -3,12 +3,13 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canCancelBooking } from "@/lib/utils";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const booking = await prisma.booking.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       classSession: true,
       child: true,
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   await prisma.$transaction(async (tx) => {
     await tx.booking.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: "CANCELLED",
         cancelledAt: new Date(),
@@ -42,15 +43,13 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
       },
     });
 
-    // Return subscription usage only if cancelled in time
     if (booking.subscriptionUsage && canCancel) {
-      await tx.subscriptionUsage.delete({ where: { bookingId: params.id } });
+      await tx.subscriptionUsage.delete({ where: { bookingId: id } });
       await tx.subscription.update({
         where: { id: booking.subscriptionUsage.subscriptionId },
         data: { usedClasses: { decrement: 1 } },
       });
     }
-    // If cancelled late — subscription usage stays (lesson is burned)
   });
 
   return NextResponse.json({ success: true, refunded: canCancel && !!booking.subscriptionUsage });

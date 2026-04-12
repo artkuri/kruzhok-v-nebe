@@ -9,11 +9,12 @@ const updateSchema = z.object({
   notes: z.string().optional().nullable(),
 });
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const child = await prisma.child.findUnique({ where: { id: params.id } });
+  const child = await prisma.child.findUnique({ where: { id } });
   if (!child) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const user = await prisma.user.findUnique({ where: { id: (session.user as any).id } });
@@ -27,7 +28,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const data = updateSchema.parse(body);
 
   const updated = await prisma.child.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...(data.name && { name: data.name }),
       birthDate: data.birthDate ? new Date(data.birthDate) : null,
@@ -38,11 +39,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   return NextResponse.json(updated);
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const child = await prisma.child.findUnique({ where: { id: params.id } });
+  const child = await prisma.child.findUnique({ where: { id } });
   if (!child) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   const user = await prisma.user.findUnique({ where: { id: (session.user as any).id } });
@@ -52,6 +54,6 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  await prisma.child.delete({ where: { id: params.id } });
+  await prisma.child.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
