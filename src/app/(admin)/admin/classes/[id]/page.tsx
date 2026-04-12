@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { formatDateTime, formatTime } from "@/lib/utils";
 import { AttendanceMarker } from "@/components/features/admin/attendance-marker";
 import { AdminBookingCreator } from "@/components/features/admin/booking-creator";
+import { AssignTeacherSelect } from "@/components/features/admin/assign-teacher-select";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -28,9 +29,13 @@ export default async function ClassDetailPage({ params }: { params: { id: string
   if (!session) notFound();
 
   const activeBookings = session.bookings.filter((b) => b.status !== "CANCELLED");
-  const families = await prisma.family.findMany({
-    include: { children: true },
-  });
+  const [families, teachers] = await Promise.all([
+    prisma.family.findMany({ include: { children: true } }),
+    prisma.teacher.findMany({
+      where: { isActive: true },
+      include: { user: true },
+    }),
+  ]);
 
   const STATUS_LABELS: Record<string, { label: string; variant: any }> = {
     PENDING:   { label: "Ожидает",      variant: "warning" },
@@ -57,9 +62,13 @@ export default async function ClassDetailPage({ params }: { params: { id: string
           <h1 className="text-xl font-bold text-gray-900 mb-1">
             {formatDateTime(session.startTime)} – {formatTime(session.endTime)}
           </h1>
-          {session.teacher && (
-            <p className="text-gray-500 text-sm mb-3">Педагог: {session.teacher.user.name}</p>
-          )}
+          <div className="mb-3">
+            <AssignTeacherSelect
+              sessionId={session.id}
+              currentTeacherId={session.teacherId}
+              teachers={teachers}
+            />
+          </div>
           <p className="text-sm text-gray-600">
             Записей: {activeBookings.length}/{session.maxStudents}
           </p>

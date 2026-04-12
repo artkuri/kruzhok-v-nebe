@@ -3,6 +3,7 @@ import { formatDate } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone } from "lucide-react";
+import { EditTeacherButton } from "@/components/features/admin/edit-teacher-button";
 
 export const metadata = { title: "Педагоги" };
 
@@ -41,9 +42,15 @@ export default async function TeachersPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <p className="font-semibold text-gray-900">{t.user.name}</p>
-                  <Badge variant={t.isActive ? "success" : "outline"}>
-                    {t.isActive ? "Активен" : "Неактивен"}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant={t.isActive ? "success" : "outline"}>
+                      {t.isActive ? "Активен" : "Неактивен"}
+                    </Badge>
+                    <EditTeacherButton
+                      teacherId={t.id}
+                      initial={{ name: t.user.name, phone: t.user.phone, bio: t.bio }}
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-1">
                   <Mail className="h-3 w-3" />
