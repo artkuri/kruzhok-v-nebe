@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Phone, Mail } from "lucide-react";
 import Link from "next/link";
 
-export default async function ClientDetailPage({ params }: { params: { id: string } }) {
+export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const family = await prisma.family.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       members: true,
       children: {

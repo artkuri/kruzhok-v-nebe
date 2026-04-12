@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default async function ClassDetailPage({ params }: { params: { id: string } }) {
+export default async function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await prisma.classSession.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       direction: true,
       teacher: { include: { user: true } },

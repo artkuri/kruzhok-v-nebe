@@ -6,14 +6,15 @@ import { AttendanceMarker } from "@/components/features/admin/attendance-marker"
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default async function TeacherClassDetailPage({ params }: { params: { id: string } }) {
+export default async function TeacherClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   const userId = (session!.user as any).id;
 
   const teacher = await prisma.teacher.findUnique({ where: { userId } });
 
   const classSession = await prisma.classSession.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       direction: true,
       teacher: { include: { user: true } },
