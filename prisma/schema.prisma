@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  CLIENT
+  ADMIN
+  TEACHER
+}
+
+enum SessionStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING      // записан, не оплачен
+  CONFIRMED    // оплачен / подтверждён
+  ATTENDED     // посетил
+  MISSED       // не пришёл (занятие сгорело)
+  CANCELLED    // отменён клиентом или admin
+}
+
+enum SubscriptionType {
+  DRAWING_ART_OWN        // Рисование / Арт-терапия, свои материалы — 8 занятий 3600 ₽
+  DRAWING_ART_STUDIO     // Рисование / Арт-терапия, материалы студии — 8 занятий 4800 ₽
+  CRAFT_CERAMIC          // Рукоделие / Керамика — 8 занятий 4800 ₽
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  ON_SITE
+}
+
+enum DirectionType {
+  DRAWING       // Рисование
+  ART_THERAPY   // Арт-терапия
+  CRAFT         // Рукоделие
+  CERAMICS      // Керамика
+  MASTERCLASS   // Мастер-класс
+}
+
+// ─── Core models ──────────────────────────────────────────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  name         String
+  role         Role     @default(CLIENT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  family   Family?  @relation(fields: [familyId], references: [id])
+  familyId String?
+
+  teacher  Teacher?
+
+  @@index([email])
+  @@index([familyId])
+}
+
+model Family {
+  id        String   @id @default(cuid())
+  name      String   // «Семья Ивановых»
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members       User[]
+  children      Child[]
+  subscriptions Subscription[]
+}
+
+model Child {
+  id        String    @id @default(cuid())
+  name      String
+  birthDate DateTime?
+  notes     String?
+  createdAt DateTime  @default(now())
+
+  family   Family @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  familyId String
+
+  bookings Booking[]
+
+  @@index([familyId])
+}
+
+// ─── Teachers & Directions ────────────────────────────────────────────────────
+
+model Teacher {
+  id        String  @id @default(cuid())
+  bio       String?
+  isActive  Boolean @default(true)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+
+  scheduleSlots ScheduleSlot[]
+  classSessions ClassSession[]
+}
+
+model Direction {
+  id          String        @id @default(cuid())
+  type        DirectionType
+  name        String        // «Рисование», «Арт-терапия 3–7 лет» и т.д.
+  description String?
+  ageGroup    String?       // «3–7», «8+», «все»
+  color       String        @default("#6366f1") // для UI
+  isActive    Boolean       @default(true)
+
+  scheduleSlots ScheduleSlot[]
+  classSessions ClassSession[]
+}
+
+// ─── Schedule & Sessions ──────────────────────────────────────────────────────
+
+/// Еженедельный шаблон расписания
+model ScheduleSlot {
+  id          String  @id @default(cuid())
+  dayOfWeek   Int     // 1=Пн … 7=Вс
+  startTime   String  // «19:00»
+  durationMin Int     @default(90)
+  maxStudents Int     @default(10)
+  isActive    Boolean @default(true)
+
+  direction   Direction @relation(fields: [directionId], references: [id])
+  directionId String
+  teacher     Teacher?  @relation(fields: [teacherId], references: [id])
+  teacherId   String?
+
+  classSessions ClassSession[]
+
+  @@index([directionId])
+  @@index([teacherId])
+}
+
+/// Конкретное занятие (генерируется из шаблона или создаётся вручную)
+model ClassSession {
+  id          String        @id @default(cuid())
+  date        DateTime      // только дата
+  startTime   DateTime      // дата + время начала (UTC)
+  endTime     DateTime      // дата + время конца
+  status      SessionStatus @default(SCHEDULED)
+  notes       String?
+  maxStudents Int           @default(10)
+  createdAt   DateTime      @default(now())
+
+  scheduleSlot   ScheduleSlot? @relation(fields: [scheduleSlotId], references: [id])
+  scheduleSlotId String?
+  direction      Direction     @relation(fields: [directionId], references: [id])
+  directionId    String
+  teacher        Teacher?      @relation(fields: [teacherId], references: [id])
+  teacherId      String?
+
+  bookings Booking[]
+
+  @@index([date])
+  @@index([directionId])
+  @@index([teacherId])
+}
+
+// ─── Bookings & Attendance ────────────────────────────────────────────────────
+
+model Booking {
+  id                 String        @id @default(cuid())
+  status             BookingStatus @default(PENDING)
+  createdAt          DateTime      @default(now())
+  cancelledAt        DateTime?
+  cancellationReason String?
+  createdByAdmin     Boolean       @default(false)
+
+  classSession   ClassSession @relation(fields: [classSessionId], references: [id])
+  classSessionId String
+  child          Child        @relation(fields: [childId], references: [id])
+  childId        String
+
+  attendance        Attendance?
+  subscriptionUsage SubscriptionUsage?
+  payment           Payment?
+
+  @@unique([classSessionId, childId])
+  @@index([classSessionId])
+  @@index([childId])
+}
+
+model Attendance {
+  id       String   @id @default(cuid())
+  attended Boolean
+  markedAt DateTime @default(now())
+  markedBy String   // userId педагога или admin
+  notes    String?
+
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  bookingId String  @unique
+}
+
+// ─── Subscriptions ────────────────────────────────────────────────────────────
+
+model Subscription {
+  id                String           @id @default(cuid())
+  type              SubscriptionType
+  totalClasses      Int              @default(8)
+  usedClasses       Int              @default(0)
+  includesMaterials Boolean          @default(false)
+  priceRub          Int              // цена в рублях
+  validFrom         DateTime
+  validUntil        DateTime         // +1 год от validFrom
+  isActive          Boolean          @default(true)
+  notes             String?
+  createdAt         DateTime         @default(now())
+
+  family   Family @relation(fields: [familyId], references: [id])
+  familyId String
+
+  usages   SubscriptionUsage[]
+  payments Payment[]
+
+  @@index([familyId])
+}
+
+model SubscriptionUsage {
+  id     String   @id @default(cuid())
+  usedAt DateTime @default(now())
+
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String
+  booking        Booking      @relation(fields: [bookingId], references: [id])
+  bookingId      String       @unique
+
+  @@index([subscriptionId])
+}
+
+// ─── Payments ─────────────────────────────────────────────────────────────────
+
+model Payment {
+  id        String        @id @default(cuid())
+  amountRub Int
+  method    PaymentMethod
+  isPaid    Boolean       @default(false)
+  paidAt    DateTime?
+  notes     String?
+  createdAt DateTime      @default(now())
+
+  booking        Booking?      @relation(fields: [bookingId], references: [id])
+  bookingId      String?       @unique
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String?
+
+  @@index([bookingId])
+  @@index([subscriptionId])
+}
