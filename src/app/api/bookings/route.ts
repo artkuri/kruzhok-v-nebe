@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
   const classSession = await prisma.classSession.findUnique({
     where: { id: data.classSessionId },
     include: {
+      direction: true,
       _count: { select: { bookings: { where: { status: { notIn: ["CANCELLED"] } } } } },
     },
   });
@@ -121,8 +122,19 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Link subscription if provided
-    if (data.subscriptionId) {
+    // Auto-create payment for individual lessons
+    if (classSession!.direction.type === "INDIVIDUAL") {
+      const price = classSession!.direction.priceRub ?? 1000;
+      await tx.payment.create({
+        data: {
+          bookingId: bk.id,
+          amountRub: price,
+          method: "ON_SITE",
+          isPaid: false,
+        },
+      });
+    } else if (data.subscriptionId) {
+      // Link subscription for group classes
       const sub = await tx.subscription.findUnique({ where: { id: data.subscriptionId } });
       if (sub && sub.isActive && sub.usedClasses < sub.totalClasses) {
         await tx.subscriptionUsage.upsert({

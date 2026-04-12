@@ -138,6 +138,46 @@ export default function PricesPage() {
         </div>
       ))}
 
+      {/* Individual lesson */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Индивидуальные занятия</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 flex flex-col">
+            <div className="mb-4">
+              <p className="font-semibold text-gray-900">Индивидуальное занятие</p>
+              <p className="text-sm text-gray-500 mt-0.5">Один ученик + педагог</p>
+            </div>
+            <div className="mb-4">
+              <span className="text-3xl font-bold text-gray-900">1 000 ₽</span>
+              <span className="text-sm text-gray-400 ml-2">(60 мин)</span>
+            </div>
+            <ul className="space-y-2 flex-1">
+              {[
+                "Персональный подход",
+                "Любое направление студии",
+                "Подходит для всех возрастов",
+                "Удобное время — по договорённости",
+              ].map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
+                  <Check className="h-4 w-4 text-brand-500 shrink-0 mt-0.5" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Button className="mt-6 w-full" variant="outline" asChild>
+              <Link href="/contacts">Записаться через контакты</Link>
+            </Button>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 flex flex-col justify-center">
+            <p className="text-sm text-gray-500 mb-3">Индивидуальные занятия назначаются администратором по договорённости с педагогом. Свяжитесь с нами через:</p>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li><a href="tel:+79639000990" className="hover:text-brand-600">+7 963 900-09-90</a></li>
+              <li><a href="https://t.me/kruzhokvnebe" target="_blank" rel="noopener noreferrer" className="hover:text-brand-600">Telegram @kruzhokvnebe</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* Rules */}
       <div className="rounded-2xl bg-amber-50 border border-amber-100 p-6">
         <h3 className="font-semibold text-amber-900 mb-3">Условия посещения</h3>

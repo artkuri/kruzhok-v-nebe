@@ -73,6 +73,20 @@ async function main() {
     },
   });
 
+  const individual = await prisma.direction.upsert({
+    where: { id: "dir-individual" },
+    update: {},
+    create: {
+      id: "dir-individual",
+      type: DirectionType.INDIVIDUAL,
+      name: "Индивидуальное занятие",
+      description: "Персональное занятие с педагогом по любому направлению: рисование, арт-терапия, рукоделие",
+      ageGroup: "все",
+      color: "#f97316",
+      priceRub: 1000,
+    },
+  });
+
   // ─── Admin user ────────────────────────────────────────────────
   const adminHash = await bcrypt.hash("admin123", 10);
   const admin = await prisma.user.upsert({
