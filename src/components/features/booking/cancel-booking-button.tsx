@@ -14,37 +14,45 @@ import { toast } from "@/components/ui/toaster";
 
 interface CancelBookingButtonProps {
   bookingId: string;
-  canCancel: boolean;
+  canCancel: boolean; // true = >3h before session
 }
 
 export function CancelBookingButton({ bookingId, canCancel }: CancelBookingButtonProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleCancel() {
     setLoading(true);
+    setError("");
     const res = await fetch(`/api/bookings/${bookingId}/cancel`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason: "Отменено клиентом" }),
+      body: JSON.stringify({}),
     });
 
     setLoading(false);
 
     if (!res.ok) {
       const data = await res.json();
-      toast({ title: "Ошибка", description: data.error, variant: "destructive" });
+      setError(data.error || "Ошибка");
       return;
     }
 
     const data = await res.json();
+
+    let description: string;
+    if (data.refunded) {
+      description = "Занятие возвращено на абонемент";
+    } else if (data.burned) {
+      description = "Занятие сгорело — отмена менее чем за 3 часа";
+    } else {
+      description = "Запись отменена";
+    }
+
     toast({
       title: "Запись отменена",
-      description: data.refunded
-        ? "Занятие возвращено на абонемент"
-        : canCancel
-        ? "Занятие возвращено"
-        : "Занятие сгорело (отмена менее чем за 3 часа)",
+      description,
       variant: data.refunded ? "success" : "default",
     });
 
@@ -58,7 +66,7 @@ export function CancelBookingButton({ bookingId, canCancel }: CancelBookingButto
         size="sm"
         variant="outline"
         className="text-red-600 border-red-200 hover:bg-red-50 shrink-0"
-        onClick={() => setOpen(true)}
+        onClick={() => { setOpen(true); setError(""); }}
       >
         Отменить
       </Button>
@@ -69,21 +77,27 @@ export function CancelBookingButton({ bookingId, canCancel }: CancelBookingButto
             <DialogTitle>Отмена записи</DialogTitle>
             <DialogDescription>
               {canCancel
-                ? "Вы отменяете запись более чем за 3 часа до занятия. Занятие будет возвращено на абонемент (если использовался)."
-                : "Внимание: отмена менее чем за 3 часа до начала. Занятие из абонемента не вернётся."}
+                ? "Отмена за 3+ часа до занятия. Занятие вернётся на абонемент (если использовался)."
+                : "Отмена менее чем за 3 часа до начала. Занятие из абонемента не вернётся."}
             </DialogDescription>
           </DialogHeader>
+
           {!canCancel && (
             <div className="rounded-xl bg-amber-50 border border-amber-100 p-3 text-sm text-amber-800">
-              Занятие сгорает при отмене позже чем за 3 часа до начала.
+              По правилам студии, занятие сгорает при отмене менее чем за 3 часа до начала.
             </div>
           )}
+
+          {error && (
+            <p className="text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">{error}</p>
+          )}
+
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
               Назад
             </Button>
             <Button variant="destructive" onClick={handleCancel} loading={loading}>
-              Отменить запись
+              Подтвердить отмену
             </Button>
           </DialogFooter>
         </DialogContent>
