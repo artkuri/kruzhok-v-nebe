@@ -31,8 +31,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     where: { id },
     data: {
       ...(data.name && { name: data.name }),
-      birthDate: data.birthDate ? new Date(data.birthDate) : null,
-      notes: data.notes,
+      ...(data.birthDate !== undefined && {
+        birthDate: data.birthDate ? new Date(data.birthDate) : null,
+      }),
+      ...(data.notes !== undefined && { notes: data.notes }),
     },
   });
 
