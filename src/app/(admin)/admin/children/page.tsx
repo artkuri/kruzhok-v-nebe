@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import Link from "next/link";
+import { EditChildButton } from "@/components/features/admin/edit-child-button";
+import { DeleteChildButton } from "@/components/features/admin/delete-child-button";
 
 export const metadata = { title: "Дети" };
 
@@ -27,6 +29,7 @@ export default async function AdminChildrenPage() {
               <th className="text-left px-4 py-3 hidden sm:table-cell">Семья</th>
               <th className="text-left px-4 py-3 hidden md:table-cell">Дата рождения</th>
               <th className="text-center px-4 py-3">Записей</th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -46,6 +49,23 @@ export default async function AdminChildrenPage() {
                 </td>
                 <td className="px-4 py-3 text-center text-gray-600">
                   {c._count.bookings}
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-1">
+                    <EditChildButton
+                      childId={c.id}
+                      initial={{
+                        name: c.name,
+                        birthDate: c.birthDate ? c.birthDate.toISOString() : null,
+                        notes: c.notes,
+                      }}
+                    />
+                    <DeleteChildButton
+                      childId={c.id}
+                      childName={c.name}
+                      activeBookings={c._count.bookings}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

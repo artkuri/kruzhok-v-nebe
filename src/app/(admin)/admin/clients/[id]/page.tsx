@@ -4,6 +4,9 @@ import { formatDate, formatDateTime, formatRub } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Phone, Mail } from "lucide-react";
 import Link from "next/link";
+import { AddChildButton } from "@/components/features/admin/add-child-button";
+import { EditChildButton } from "@/components/features/admin/edit-child-button";
+import { DeleteChildButton } from "@/components/features/admin/delete-child-button";
 
 export default async function ClientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -128,9 +131,28 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Children & History */}
-      {family.children.map((child) => (
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-gray-900">Дети</h2>
+        <AddChildButton familyId={family.id} familyName={family.name} />
+      </div>
+      {family.children.map((child) => {
+        const activeBookings = child.bookings.filter((b) => b.status !== "CANCELLED").length;
+        return (
         <div key={child.id} className="rounded-2xl border border-gray-100 bg-white p-6">
-          <h2 className="font-semibold text-gray-900 mb-1">{child.name}</h2>
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="font-semibold text-gray-900">{child.name}</h2>
+            <div className="flex items-center gap-1">
+              <EditChildButton
+                childId={child.id}
+                initial={{
+                  name: child.name,
+                  birthDate: child.birthDate ? child.birthDate.toISOString() : null,
+                  notes: child.notes,
+                }}
+              />
+              <DeleteChildButton childId={child.id} childName={child.name} activeBookings={activeBookings} />
+            </div>
+          </div>
           {child.birthDate && (
             <p className="text-sm text-gray-400 mb-4">{formatDate(child.birthDate)}</p>
           )}
@@ -162,7 +184,8 @@ export default async function ClientDetailPage({ params }: { params: Promise<{ i
             </div>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

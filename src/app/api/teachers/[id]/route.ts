@@ -51,3 +51,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   return NextResponse.json(full);
 }
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await params;
+  const teacher = await prisma.teacher.findUnique({ where: { id } });
+  if (!teacher) return NextResponse.json({ error: "Педагог не найден" }, { status: 404 });
+
+  // Снимаем педагога с будущих занятий
+  await prisma.classSession.updateMany({
+    where: { teacherId: id, startTime: { gte: new Date() } },
+    data: { teacherId: null },
+  });
+  await prisma.scheduleSlot.updateMany({
+    where: { teacherId: id },
+    data: { teacherId: null },
+  });
+
+  // Удаляем user (cascade удалит teacher)
+  await prisma.user.delete({ where: { id: teacher.userId } });
+
+  return NextResponse.json({ success: true });
+}

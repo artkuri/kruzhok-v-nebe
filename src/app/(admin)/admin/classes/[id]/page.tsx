@@ -4,8 +4,9 @@ import { formatDateTime, formatTime } from "@/lib/utils";
 import { AttendanceMarker } from "@/components/features/admin/attendance-marker";
 import { AdminBookingCreator } from "@/components/features/admin/booking-creator";
 import { AssignTeacherSelect } from "@/components/features/admin/assign-teacher-select";
+import { EditSessionButton } from "@/components/features/admin/edit-session-button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default async function ClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,6 +31,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
   if (!session) notFound();
 
   const activeBookings = session.bookings.filter((b) => b.status !== "CANCELLED");
+  const isStarted = new Date(session.startTime) <= new Date();
   const [families, teachers] = await Promise.all([
     prisma.family.findMany({ include: { children: true } }),
     prisma.teacher.findMany({
@@ -46,6 +48,14 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
     CANCELLED: { label: "Отменено",     variant: "outline" },
   };
 
+  const SESSION_STATUS: Record<string, { label: string; variant: any }> = {
+    SCHEDULED:   { label: "Запланировано", variant: "success" },
+    IN_PROGRESS: { label: "Идёт",          variant: "warning" },
+    COMPLETED:   { label: "Завершено",     variant: "secondary" },
+    CANCELLED:   { label: "Отменено",      variant: "destructive" },
+  };
+  const sessionStatus = SESSION_STATUS[session.status] ?? SESSION_STATUS.SCHEDULED;
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -54,15 +64,40 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
           К списку занятий
         </Link>
         <div className="rounded-2xl border border-gray-100 bg-white p-6">
-          <div
-            className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium mb-3"
-            style={{ backgroundColor: session.direction.color + "20", color: session.direction.color }}
-          >
-            {session.direction.name}
+          <div className="flex items-start justify-between mb-3 flex-wrap gap-2">
+            <div
+              className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
+              style={{ backgroundColor: session.direction.color + "20", color: session.direction.color }}
+            >
+              {session.direction.name}
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant={sessionStatus.variant}>{sessionStatus.label}</Badge>
+              <EditSessionButton
+                sessionId={session.id}
+                initial={{
+                  startTime: session.startTime.toISOString(),
+                  endTime: session.endTime.toISOString(),
+                  maxStudents: session.maxStudents,
+                  durationMin: session.durationMin,
+                  notes: session.notes,
+                }}
+                isStarted={isStarted}
+              />
+            </div>
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-1">
             {formatDateTime(session.startTime)} – {formatTime(session.endTime)}
           </h1>
+          {session.durationMin && (
+            <div className="flex items-center gap-1 text-xs text-gray-400 mb-2">
+              <Clock className="h-3.5 w-3.5" />
+              {session.durationMin} мин
+            </div>
+          )}
+          {session.notes && (
+            <p className="text-sm text-gray-500 mb-2">{session.notes}</p>
+          )}
           <div className="mb-3">
             <AssignTeacherSelect
               sessionId={session.id}

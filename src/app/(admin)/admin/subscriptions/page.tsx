@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { formatDate, formatRub } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { CreateSubscriptionButton } from "@/components/features/admin/create-subscription-button";
+import { EditSubscriptionButton } from "@/components/features/admin/edit-subscription-button";
 
 export const metadata = { title: "Абонементы" };
 
@@ -37,6 +38,7 @@ export default async function AdminSubscriptionsPage() {
               <th className="text-left px-4 py-3 hidden md:table-cell">Действует до</th>
               <th className="text-right px-4 py-3 hidden md:table-cell">Сумма</th>
               <th className="text-center px-4 py-3">Статус</th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -75,6 +77,20 @@ export default async function AdminSubscriptionsPage() {
                     ) : (
                       <Badge variant="outline">Завершён</Badge>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <EditSubscriptionButton
+                      subscriptionId={sub.id}
+                      initial={{
+                        priceRub: sub.priceRub,
+                        totalClasses: sub.totalClasses,
+                        usedClasses: sub.usedClasses,
+                        includesMaterials: sub.includesMaterials,
+                        includesMasterclass: sub.includesMasterclass,
+                        notes: sub.notes,
+                        isActive: sub.isActive,
+                      }}
+                    />
                   </td>
                 </tr>
               );

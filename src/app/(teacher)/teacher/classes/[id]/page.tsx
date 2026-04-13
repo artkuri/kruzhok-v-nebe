@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { formatDateTime, formatTime } from "@/lib/utils";
 import { AttendanceMarker } from "@/components/features/admin/attendance-marker";
-import { ArrowLeft } from "lucide-react";
+import { AdminBookingCreator } from "@/components/features/admin/booking-creator";
+import { ArrowLeft, Clock, Users } from "lucide-react";
 import Link from "next/link";
 
 export default async function TeacherClassDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +22,7 @@ export default async function TeacherClassDetailPage({ params }: { params: Promi
       bookings: {
         where: { status: { notIn: ["CANCELLED"] } },
         include: {
-          child: true,
+          child: { include: { family: { include: { members: { take: 1 } } } } },
           attendance: true,
         },
         orderBy: { createdAt: "asc" },
@@ -35,12 +36,20 @@ export default async function TeacherClassDetailPage({ params }: { params: Promi
   }
 
   const sessionStarted = new Date(classSession.startTime) <= new Date();
+  const freeSlots = classSession.maxStudents - classSession.bookings.length;
+  const bookedChildIds = classSession.bookings.map((b) => b.childId);
+
+  // Only family name and children for the booking creator (no financial info)
+  const families = await prisma.family.findMany({
+    include: { children: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <Link href="/teacher/schedule" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+      <Link href="/teacher/classes" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
         <ArrowLeft className="h-4 w-4" />
-        Назад к расписанию
+        К занятиям
       </Link>
 
       <div className="rounded-2xl border border-gray-100 bg-white p-6">
@@ -56,10 +65,29 @@ export default async function TeacherClassDetailPage({ params }: { params: Promi
         <h1 className="text-xl font-bold text-gray-900">
           {formatDateTime(classSession.startTime)} – {formatTime(classSession.endTime)}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Учеников: {classSession.bookings.length}/{classSession.maxStudents}
-        </p>
+        {classSession.durationMin && (
+          <div className="flex items-center gap-1.5 text-sm text-gray-400 mt-1">
+            <Clock className="h-4 w-4" />
+            {classSession.durationMin} мин
+          </div>
+        )}
+        <div className="flex items-center gap-4 mt-2">
+          <div className="flex items-center gap-1.5 text-sm text-gray-600">
+            <Users className="h-4 w-4 text-gray-400" />
+            <span>Занято: <strong>{classSession.bookings.length}</strong>/{classSession.maxStudents}</span>
+          </div>
+          <span className={`text-sm font-medium ${freeSlots === 0 ? "text-red-500" : "text-emerald-600"}`}>
+            {freeSlots === 0 ? "Мест нет" : `Свободно: ${freeSlots}`}
+          </span>
+        </div>
       </div>
+
+      {/* Add student manually */}
+      <AdminBookingCreator
+        sessionId={classSession.id}
+        families={families}
+        bookedChildIds={bookedChildIds}
+      />
 
       <div className="rounded-2xl border border-gray-100 bg-white p-6">
         <h2 className="font-semibold text-gray-900 mb-4">Список учеников</h2>
@@ -68,21 +96,29 @@ export default async function TeacherClassDetailPage({ params }: { params: Promi
           <p className="text-sm text-gray-400">Нет записей</p>
         ) : (
           <div className="space-y-3">
-            {classSession.bookings.map((b) => (
-              <div key={b.id} className="flex items-center justify-between gap-4 p-3 rounded-xl border border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600">
-                    {b.child.name.charAt(0)}
+            {classSession.bookings.map((b) => {
+              const parentName = b.child.family?.members[0]?.name;
+              return (
+                <div key={b.id} className="flex items-center justify-between gap-4 p-3 rounded-xl border border-gray-100">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-600 shrink-0">
+                      {b.child.name.charAt(0)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900 truncate">{b.child.name}</p>
+                      {parentName && (
+                        <p className="text-xs text-gray-400 truncate">Родитель: {parentName}</p>
+                      )}
+                    </div>
                   </div>
-                  <span className="font-medium text-gray-900">{b.child.name}</span>
+                  <AttendanceMarker
+                    bookingId={b.id}
+                    currentAttendance={b.attendance}
+                    sessionStarted={sessionStarted}
+                  />
                 </div>
-                <AttendanceMarker
-                  bookingId={b.id}
-                  currentAttendance={b.attendance}
-                  sessionStarted={sessionStarted}
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

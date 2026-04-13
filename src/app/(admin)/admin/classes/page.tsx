@@ -34,8 +34,9 @@ export default async function AdminClassesPage() {
   const dates = Object.keys(byDate).sort();
 
   const statusBadge = (s: { status: string }) => {
-    if (s.status === "CANCELLED") return <Badge variant="destructive">Отменено</Badge>;
-    if (s.status === "COMPLETED") return <Badge variant="secondary">Завершено</Badge>;
+    if (s.status === "CANCELLED")   return <Badge variant="destructive">Отменено</Badge>;
+    if (s.status === "COMPLETED")   return <Badge variant="secondary">Завершено</Badge>;
+    if (s.status === "IN_PROGRESS") return <Badge variant="warning">Идёт</Badge>;
     return <Badge variant="success">Запланировано</Badge>;
   };
 

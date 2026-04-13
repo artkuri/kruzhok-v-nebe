@@ -17,9 +17,10 @@ enum Role {
 }
 
 enum SessionStatus {
-  SCHEDULED
-  COMPLETED
-  CANCELLED
+  SCHEDULED    // запланировано
+  IN_PROGRESS  // идёт
+  COMPLETED    // завершено
+  CANCELLED    // отменено
 }
 
 enum BookingStatus {
@@ -157,6 +158,7 @@ model ClassSession {
   status      SessionStatus @default(SCHEDULED)
   notes       String?
   maxStudents Int           @default(10)
+  durationMin Int           @default(60)
   createdAt   DateTime      @default(now())
 
   scheduleSlot   ScheduleSlot? @relation(fields: [scheduleSlotId], references: [id])
@@ -211,17 +213,19 @@ model Attendance {
 // ─── Subscriptions ────────────────────────────────────────────────────────────
 
 model Subscription {
-  id                String           @id @default(cuid())
-  type              SubscriptionType
-  totalClasses      Int              @default(8)
-  usedClasses       Int              @default(0)
-  includesMaterials Boolean          @default(false)
-  priceRub          Int              // цена в рублях
-  validFrom         DateTime
-  validUntil        DateTime         // +1 год от validFrom
-  isActive          Boolean          @default(true)
-  notes             String?
-  createdAt         DateTime         @default(now())
+  id                   String           @id @default(cuid())
+  type                 SubscriptionType
+  totalClasses         Int              @default(8)
+  usedClasses          Int              @default(0)
+  includesMaterials    Boolean          @default(false)  // true = материалы студии
+  includesMasterclass  Boolean          @default(false)  // входят ли мастер-классы
+  priceRub             Int              // цена в рублях
+  validFrom            DateTime
+  validUntil           DateTime         // +1 год от validFrom
+  isActive             Boolean          @default(true)
+  description          String?          // произвольное описание / состав
+  notes                String?
+  createdAt            DateTime         @default(now())
 
   family   Family @relation(fields: [familyId], references: [id])
   familyId String
@@ -262,4 +266,19 @@ model Payment {
 
   @@index([bookingId])
   @@index([subscriptionId])
+}
+
+// ─── Studio Settings ──────────────────────────────────────────────────────────
+
+/// Singleton — всегда одна запись с id="singleton"
+model StudioSettings {
+  id                 String  @id @default("singleton")
+  studioName         String  @default("Кружок в небе")
+  maxGroupSize       Int     @default(10)     // лимит мест по умолчанию
+  cancellationHours  Int     @default(3)      // часов до занятия для отмены без потери
+  defaultDurationMin Int     @default(60)     // длительность занятия по умолчанию
+  address            String?
+  phone              String?
+  description        String?
+  updatedAt          DateTime @updatedAt
 }

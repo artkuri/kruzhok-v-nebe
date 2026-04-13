@@ -12,16 +12,18 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { bookingId, attended, notes } = body;
+  const { bookingId, attended, notes, deductFromSubscription } = body;
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: { classSession: { include: { teacher: true } } },
+    include: {
+      classSession: { include: { teacher: true } },
+      subscriptionUsage: true,
+    },
   });
 
   if (!booking) return NextResponse.json({ error: "Booking not found" }, { status: 404 });
 
-  // Teacher can only mark their own sessions
   if (role === "TEACHER") {
     const teacher = await prisma.teacher.findUnique({
       where: { userId: (session.user as any).id },
@@ -42,16 +44,27 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Update booking status
   await prisma.booking.update({
     where: { id: bookingId },
-    data: {
-      status: attended ? "ATTENDED" : "MISSED",
-    },
+    data: { status: attended ? "ATTENDED" : "MISSED" },
   });
 
-  // If missed and has subscription usage — burn the lesson (don't return it)
-  // This is already handled: lesson was consumed when booked
+  // Ручное списание занятия с абонемента (если ребёнок не пришёл и у него нет usage)
+  if (!attended && deductFromSubscription && !booking.subscriptionUsage) {
+    const { subscriptionId } = deductFromSubscription;
+    const sub = await prisma.subscription.findUnique({ where: { id: subscriptionId } });
+    if (sub && sub.isActive && sub.usedClasses < sub.totalClasses) {
+      await prisma.$transaction([
+        prisma.subscriptionUsage.create({
+          data: { bookingId, subscriptionId },
+        }),
+        prisma.subscription.update({
+          where: { id: subscriptionId },
+          data: { usedClasses: { increment: 1 } },
+        }),
+      ]);
+    }
+  }
 
   return NextResponse.json(attendance);
 }

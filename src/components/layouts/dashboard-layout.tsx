@@ -20,6 +20,7 @@ import {
   History,
   User,
   BookOpen,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SidebarNav } from "./sidebar-nav";
@@ -36,6 +37,7 @@ const NAV_BY_ROLE = {
     { href: "/admin/subscriptions", label: "Абонементы",    icon: CreditCard },
     { href: "/admin/payments",      label: "Оплаты",        icon: Banknote },
     { href: "/admin/teachers",      label: "Педагоги",      icon: GraduationCap },
+    { href: "/admin/prices",        label: "Цены",          icon: Tag },
     { href: "/admin/settings",      label: "Настройки",     icon: Settings },
   ],
   CLIENT: [

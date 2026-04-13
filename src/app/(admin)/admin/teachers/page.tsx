@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone } from "lucide-react";
 import { EditTeacherButton } from "@/components/features/admin/edit-teacher-button";
+import { CreateTeacherButton } from "@/components/features/admin/create-teacher-button";
+import { DeleteTeacherButton } from "@/components/features/admin/delete-teacher-button";
 
 export const metadata = { title: "Педагоги" };
 
@@ -30,7 +32,10 @@ export default async function TeachersPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Педагоги</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Педагоги</h1>
+        <CreateTeacherButton />
+      </div>
 
       <div className="grid sm:grid-cols-2 gap-4">
         {teachers.map((t) => (
@@ -50,6 +55,7 @@ export default async function TeachersPage() {
                       teacherId={t.id}
                       initial={{ name: t.user.name, phone: t.user.phone, bio: t.bio }}
                     />
+                    <DeleteTeacherButton teacherId={t.id} teacherName={t.user.name} />
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs text-gray-400 mt-1">
