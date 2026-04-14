@@ -30,6 +30,7 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [syncInfo, setSyncInfo] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     startTime:   slot.startTime,
@@ -46,8 +47,13 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
 
   async function handleSave() {
     setError("");
+    setSyncInfo(null);
     setLoading(true);
     try {
+      const timeChanged =
+        form.startTime !== slot.startTime ||
+        Number(form.durationMin) !== slot.durationMin;
+
       const res = await fetch(`/api/schedule-slots/${slot.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -57,11 +63,21 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
           maxStudents: Number(form.maxStudents),
           isActive:    form.isActive,
           teacherId:   form.teacherId || null,
+          // Send timezone only when time fields changed — needed for session sync
+          ...(timeChanged && {
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          }),
         }),
       });
       if (!res.ok) { const d = await res.json(); setError(d.error || "Ошибка"); return; }
-      setOpen(false);
-      router.refresh();
+      const result = await res.json();
+      if (result.updatedSessions > 0) {
+        setSyncInfo(`Обновлено будущих занятий: ${result.updatedSessions}`);
+        setTimeout(() => { setOpen(false); router.refresh(); }, 1500);
+      } else {
+        setOpen(false);
+        router.refresh();
+      }
     } catch { setError("Ошибка соединения"); }
     finally { setLoading(false); }
   }
@@ -111,7 +127,8 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
               </Select>
             </div>
 
-            {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">{error}</p>}
+            {error    && <p className="text-sm text-red-600   bg-red-50   rounded-xl px-3 py-2">{error}</p>}
+            {syncInfo && <p className="text-sm text-emerald-700 bg-emerald-50 rounded-xl px-3 py-2">{syncInfo}</p>}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>Отмена</Button>
