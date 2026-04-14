@@ -19,6 +19,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const role = (session.user as any).role;
   const userId = (session.user as any).id;
 
+  // Admin can explicitly choose whether to refund. Default = true (safe/generous).
+  // Clients cannot set this — their refund is time-window based only.
+  let adminWantsRefund = true;
+  try {
+    const body = await req.json();
+    if (role === "ADMIN" && typeof body.refund === "boolean") {
+      adminWantsRefund = body.refund;
+    }
+  } catch { /* empty body is fine */ }
+
   const booking = await prisma.booking.findUnique({
     where: { id },
     include: {
@@ -89,9 +99,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     reasonCode = REASON.BURNED;
   }
 
-  // For admin, allow forced refund regardless of time window
+  // For admin: refund only if they chose to (defaults true); teacher always refunds
   const adminForceRefund =
-    (role === "ADMIN" || role === "TEACHER") && hasSubscription;
+    hasSubscription &&
+    ((role === "TEACHER") || (role === "ADMIN" && adminWantsRefund));
 
   await prisma.$transaction(async (tx) => {
     await tx.booking.update({

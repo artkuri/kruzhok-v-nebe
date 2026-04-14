@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { formatRub } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { EditDirectionPriceButton } from "@/components/features/admin/edit-direction-price-button";
+import { CreateDirectionButton } from "@/components/features/admin/create-direction-button";
 
 export const metadata = { title: "Цены" };
 
@@ -11,7 +13,10 @@ export default async function AdminPricesPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Цены по направлениям</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-gray-900">Цены по направлениям</h1>
+        <CreateDirectionButton />
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
         <table className="w-full text-sm">
@@ -21,6 +26,7 @@ export default async function AdminPricesPage() {
               <th className="text-left px-4 py-3 hidden sm:table-cell">Возраст</th>
               <th className="text-right px-4 py-3">Разовое (₽)</th>
               <th className="text-center px-4 py-3">Статус</th>
+              <th className="text-right px-4 py-3" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -50,6 +56,19 @@ export default async function AdminPricesPage() {
                   {d.isActive
                     ? <Badge variant="success">Активно</Badge>
                     : <Badge variant="outline">Архив</Badge>}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <EditDirectionPriceButton
+                    directionId={d.id}
+                    initial={{
+                      name:        d.name,
+                      description: d.description,
+                      ageGroup:    d.ageGroup,
+                      priceRub:    d.priceRub,
+                      color:       d.color,
+                      isActive:    d.isActive,
+                    }}
+                  />
                 </td>
               </tr>
             ))}

@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { formatDateTime, formatDate } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { AdminCancelBookingButton } from "@/components/features/admin/admin-cancel-booking-button";
+import { ChangeBookingStatusButton } from "@/components/features/admin/change-booking-status-button";
 
 export const metadata = { title: "Записи" };
 
@@ -17,12 +19,11 @@ export default async function AdminBookingsPage() {
     include: {
       child: { include: { family: true } },
       classSession: { include: { direction: true, teacher: { include: { user: true } } } },
-      attendance: true,
       payment: true,
       subscriptionUsage: true,
     },
     orderBy: { createdAt: "desc" },
-    take: 100,
+    take: 200,
   });
 
   return (
@@ -38,11 +39,13 @@ export default async function AdminBookingsPage() {
               <th className="text-left px-4 py-3 hidden md:table-cell">Дата</th>
               <th className="text-center px-4 py-3 hidden md:table-cell">Оплата</th>
               <th className="text-center px-4 py-3">Статус</th>
+              <th className="text-right px-4 py-3">Действия</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
             {bookings.map((b) => {
               const st = STATUS_LABELS[b.status] || STATUS_LABELS.PENDING;
+              const canAct = b.status !== "CANCELLED" && b.status !== "ATTENDED" && b.status !== "MISSED";
               return (
                 <tr key={b.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
@@ -79,6 +82,21 @@ export default async function AdminBookingsPage() {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <Badge variant={st.variant}>{st.label}</Badge>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    {canAct && (
+                      <div className="flex items-center justify-end gap-1">
+                        <ChangeBookingStatusButton
+                          bookingId={b.id}
+                          currentStatus={b.status}
+                        />
+                        <AdminCancelBookingButton
+                          bookingId={b.id}
+                          childName={b.child.name}
+                          hasSubscription={!!b.subscriptionUsage}
+                        />
+                      </div>
+                    )}
                   </td>
                 </tr>
               );

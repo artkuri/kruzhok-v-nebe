@@ -45,12 +45,29 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
 
+  // Skip if a non-cancelled session already exists for this slot+date (idempotent generation)
+  if (body.scheduleSlotId && body.date) {
+    const dayStart = startOfDay(new Date(body.date));
+    const dayEnd   = endOfDay(new Date(body.date));
+    const existing = await prisma.classSession.findFirst({
+      where: {
+        scheduleSlotId: body.scheduleSlotId,
+        date: { gte: dayStart, lte: dayEnd },
+        status: { not: "CANCELLED" },
+      },
+    });
+    if (existing) {
+      return NextResponse.json(existing, { status: 200 });
+    }
+  }
+
   const classSession = await prisma.classSession.create({
     data: {
       date: new Date(body.date),
       startTime: new Date(body.startTime),
       endTime: new Date(body.endTime),
       maxStudents: body.maxStudents || 10,
+      durationMin: body.durationMin || 60,
       directionId: body.directionId,
       teacherId: body.teacherId || null,
       scheduleSlotId: body.scheduleSlotId || null,
