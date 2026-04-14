@@ -1,17 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { formatRub } from "@/lib/utils";
-import { EditDirectionPriceButton } from "@/components/features/admin/edit-direction-price-button";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata = { title: "Цены" };
-
-const TYPE_LABELS: Record<string, string> = {
-  DRAWING:     "Рисование",
-  ART_THERAPY: "Арт-терапия",
-  CERAMICS:    "Керамика",
-  MASTERCLASS: "Мастер-класс",
-  INDIVIDUAL:  "Индивидуальное",
-};
 
 export default async function AdminPricesPage() {
   const directions = await prisma.direction.findMany({
@@ -30,7 +21,6 @@ export default async function AdminPricesPage() {
               <th className="text-left px-4 py-3 hidden sm:table-cell">Возраст</th>
               <th className="text-right px-4 py-3">Разовое (₽)</th>
               <th className="text-center px-4 py-3">Статус</th>
-              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -52,27 +42,14 @@ export default async function AdminPricesPage() {
                   {d.ageGroup ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-right font-semibold text-gray-900">
-                  {d.priceRub != null ? formatRub(d.priceRub) : <span className="text-gray-300 font-normal">не задана</span>}
+                  {d.priceRub != null
+                    ? formatRub(d.priceRub)
+                    : <span className="text-gray-300 font-normal">не задана</span>}
                 </td>
                 <td className="px-4 py-3 text-center">
-                  {d.isActive ? (
-                    <Badge variant="success">Активно</Badge>
-                  ) : (
-                    <Badge variant="outline">Архив</Badge>
-                  )}
-                </td>
-                <td className="px-4 py-3">
-                  <EditDirectionPriceButton
-                    directionId={d.id}
-                    initial={{
-                      name: d.name,
-                      description: d.description,
-                      ageGroup: d.ageGroup,
-                      priceRub: d.priceRub,
-                      color: d.color,
-                      isActive: d.isActive,
-                    }}
-                  />
+                  {d.isActive
+                    ? <Badge variant="success">Активно</Badge>
+                    : <Badge variant="outline">Архив</Badge>}
                 </td>
               </tr>
             ))}

@@ -1,36 +1,43 @@
 import { prisma } from "@/lib/prisma";
-import { formatDate, formatRub, formatDateTime } from "@/lib/utils";
+import { formatRub, formatDateTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { MarkPaidButton } from "@/components/features/admin/mark-paid-button";
+import { AddPaymentButton } from "@/components/features/admin/add-payment-button";
 
 export const metadata = { title: "Оплаты" };
 
 const METHOD_LABELS: Record<string, string> = {
-  CASH: "Наличные",
+  CASH:     "Наличные",
   TRANSFER: "Перевод",
-  ON_SITE: "На месте",
+  ON_SITE:  "На месте",
 };
 
 export default async function PaymentsPage() {
-  const payments = await prisma.payment.findMany({
-    include: {
-      booking: {
-        include: {
-          child: true,
-          classSession: { include: { direction: true } },
+  const [payments, families] = await Promise.all([
+    prisma.payment.findMany({
+      include: {
+        booking: {
+          include: {
+            child: true,
+            classSession: { include: { direction: true } },
+          },
         },
+        subscription: { include: { family: true } },
       },
-      subscription: { include: { family: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    }),
+    prisma.family.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+  ]);
 
   const pending = payments.filter((p) => !p.isPaid);
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Оплаты</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Оплаты</h1>
+        <AddPaymentButton families={families} />
+      </div>
 
       {pending.length > 0 && (
         <div className="rounded-2xl bg-amber-50 border border-amber-200 p-4">
@@ -54,13 +61,8 @@ export default async function PaymentsPage() {
           </thead>
           <tbody className="divide-y divide-gray-50">
             {payments.map((p) => {
-              const who = p.booking
-                ? p.booking.child.name
-                : p.subscription?.family.name || "—";
-              const what = p.booking
-                ? p.booking.classSession.direction.name
-                : "Абонемент";
-
+              const who  = p.booking ? p.booking.child.name : p.subscription?.family.name ?? "—";
+              const what = p.booking ? p.booking.classSession.direction.name : p.notes ?? "Абонемент";
               return (
                 <tr key={p.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
@@ -77,11 +79,9 @@ export default async function PaymentsPage() {
                     {p.paidAt ? formatDateTime(p.paidAt) : formatDateTime(p.createdAt)}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    {p.isPaid ? (
-                      <Badge variant="success">Оплачено</Badge>
-                    ) : (
-                      <Badge variant="warning">Ожидает</Badge>
-                    )}
+                    {p.isPaid
+                      ? <Badge variant="success">Оплачено</Badge>
+                      : <Badge variant="warning">Ожидает</Badge>}
                   </td>
                   <td className="px-4 py-3">
                     {!p.isPaid && <MarkPaidButton paymentId={p.id} />}

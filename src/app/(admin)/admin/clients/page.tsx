@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import { Search } from "lucide-react";
+import { CreateClientButton } from "@/components/features/admin/create-client-button";
 
 export const metadata = { title: "Клиенты" };
 
@@ -28,7 +28,10 @@ export default async function ClientsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-gray-900">Клиенты</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Клиенты</h1>
+        <CreateClientButton />
+      </div>
 
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white">
         <table className="w-full text-sm">

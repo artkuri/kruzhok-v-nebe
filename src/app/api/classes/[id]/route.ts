@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { startOfDay } from "date-fns";
 import { z } from "zod";
 
 const updateSchema = z.object({
@@ -30,7 +31,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(data.status !== undefined && { status: data.status }),
       ...(data.maxStudents !== undefined && { maxStudents: data.maxStudents }),
       ...(data.durationMin !== undefined && { durationMin: data.durationMin }),
-      ...(data.startTime !== undefined && { startTime: new Date(data.startTime) }),
+      ...(data.startTime !== undefined && {
+        startTime: new Date(data.startTime),
+        // Keep `date` in sync — it drives the list-page filter
+        date: startOfDay(new Date(data.startTime)),
+      }),
       ...(data.endTime !== undefined && { endTime: new Date(data.endTime) }),
       ...(data.notes !== undefined && { notes: data.notes }),
     },
