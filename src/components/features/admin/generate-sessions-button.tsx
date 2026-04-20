@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
+import { fromZonedTime } from "date-fns-tz";
+import { STUDIO_TZ } from "@/lib/utils";
 
 interface Slot {
   id: string;
   dayOfWeek: number;   // 1=Mon … 7=Sun
-  startTime: string;   // "HH:MM" local time
+  startTime: string;   // "HH:MM" — время в часовом поясе студии (UTC+5)
   durationMin: number;
   maxStudents: number;
   directionId: string;
@@ -21,71 +23,73 @@ interface Slot {
 
 interface Props { slots: Slot[]; }
 
-// ISO week day → JS getDay() (0=Sun, 1=Mon … 6=Sat)
-const ISO_TO_JS: Record<number, number> = { 1:1,2:2,3:3,4:4,5:5,6:6,7:0 };
+/** Текущая дата в часовом поясе студии, формат "YYYY-MM-DD" */
+function todayStudio(): string {
+  return new Intl.DateTimeFormat("sv-SE", { timeZone: STUDIO_TZ }).format(new Date());
+}
 
-function nextOccurrence(fromDate: Date, isoDay: number): Date {
-  const jsDay = ISO_TO_JS[isoDay];
-  const d = new Date(fromDate);
-  d.setHours(0,0,0,0);
-  const diff = (jsDay - d.getDay() + 7) % 7;
-  d.setDate(d.getDate() + diff);
-  return d;
+/** Прибавляет n дней к строке "YYYY-MM-DD", работает через UTC (не зависит от браузерного TZ) */
+function addDaysStr(dateStr: string, n: number): string {
+  const d = new Date(dateStr + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+/** ISO день недели (1=Пн … 7=Вс) для строки "YYYY-MM-DD" */
+function isoWeekDay(dateStr: string): number {
+  const day = new Date(dateStr + "T00:00:00Z").getUTCDay(); // 0=Вс
+  return day === 0 ? 7 : day;
+}
+
+/** Первая дата >= fromStr с нужным днём недели */
+function nextOccurrence(fromStr: string, isoDay: number): string {
+  let str = fromStr;
+  for (let i = 0; i < 7; i++) {
+    if (isoWeekDay(str) === isoDay) return str;
+    str = addDaysStr(str, 1);
+  }
+  return str;
 }
 
 export function GenerateSessionsButton({ slots }: Props) {
   const router = useRouter();
-  const today = new Date();
-  const fourWeeks = new Date(today);
-  fourWeeks.setDate(today.getDate() + 28);
 
-  const fmt = (d: Date) => d.toISOString().slice(0, 10);
+  const today     = todayStudio();
+  const fourWeeks = addDaysStr(today, 28);
 
-  const [open, setOpen] = useState(false);
-  const [from, setFrom] = useState(fmt(today));
-  const [to, setTo]   = useState(fmt(fourWeeks));
+  const [open, setOpen]       = useState(false);
+  const [from, setFrom]       = useState(today);
+  const [to, setTo]           = useState(fourWeeks);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ created: number; skipped: number } | null>(null);
-  const [error, setError] = useState("");
+  const [result, setResult]   = useState<{ created: number; skipped: number } | null>(null);
+  const [error, setError]     = useState("");
 
   async function handleGenerate() {
     setError("");
     setResult(null);
     setLoading(true);
 
-    const start = new Date(from + "T00:00:00");
-    const end   = new Date(to   + "T23:59:59");
-
-    if (start > end) { setError("Дата начала позже даты конца"); setLoading(false); return; }
+    if (from > to) { setError("Дата начала позже даты конца"); setLoading(false); return; }
     if (slots.length === 0) { setError("Нет активных слотов расписания"); setLoading(false); return; }
 
     let created = 0;
     let skipped = 0;
 
     for (const slot of slots) {
-      let cur = nextOccurrence(start, slot.dayOfWeek);
+      let cur = nextOccurrence(from, slot.dayOfWeek);
 
-      while (cur <= end) {
-        // Build startTime in local timezone, then convert to UTC via toISOString
-        const [hh, mm] = slot.startTime.split(":").map(Number);
-        const sessionStart = new Date(cur);
-        sessionStart.setHours(hh, mm, 0, 0);
-        const sessionEnd = new Date(sessionStart.getTime() + slot.durationMin * 60_000);
-
-        // Use local date parts to avoid UTC-offset shifting the date
-        const localDate = [
-          cur.getFullYear(),
-          String(cur.getMonth() + 1).padStart(2, "0"),
-          String(cur.getDate()).padStart(2, "0"),
-        ].join("-");
+      while (cur <= to) {
+        // Время занятия всегда интерпретируется в часовом поясе студии (UTC+5)
+        const sessionStart = fromZonedTime(`${cur}T${slot.startTime}:00`, STUDIO_TZ);
+        const sessionEnd   = new Date(sessionStart.getTime() + slot.durationMin * 60_000);
 
         const res = await fetch("/api/classes", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             scheduleSlotId: slot.id,
-            date:           localDate,
-            startTime:      sessionStart.toISOString(),
+            date:           cur,                       // "YYYY-MM-DD" в зоне студии
+            startTime:      sessionStart.toISOString(), // UTC ISO строка
             endTime:        sessionEnd.toISOString(),
             durationMin:    slot.durationMin,
             maxStudents:    slot.maxStudents,
@@ -95,10 +99,9 @@ export function GenerateSessionsButton({ slots }: Props) {
         });
 
         if (res.status === 201) created++;
-        else if (res.status === 200) skipped++; // already exists
-        else { /* ignore individual errors */ }
+        else if (res.status === 200) skipped++;
 
-        cur.setDate(cur.getDate() + 7);
+        cur = addDaysStr(cur, 7);
       }
     }
 
@@ -133,7 +136,7 @@ export function GenerateSessionsButton({ slots }: Props) {
           {!result ? (
             <>
               <div className="grid grid-cols-2 gap-3 py-2">
-                <Input label="С" type="date" value={from} onChange={e => setFrom(e.target.value)} />
+                <Input label="С"  type="date" value={from} onChange={e => setFrom(e.target.value)} />
                 <Input label="По" type="date" value={to}   onChange={e => setTo(e.target.value)} />
               </div>
               {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">{error}</p>}

@@ -1,26 +1,30 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, formatDistanceToNow, subHours } from "date-fns";
+import { formatDistanceToNow, subHours } from "date-fns";
+import { format } from "date-fns-tz";
 import { ru } from "date-fns/locale";
+
+/** Единая временная зона студии — всё время отображается и вычисляется в UTC+5 */
+export const STUDIO_TZ = "Asia/Yekaterinburg";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function formatDate(date: Date | string): string {
-  return format(new Date(date), "d MMMM yyyy", { locale: ru });
+  return format(new Date(date), "d MMMM yyyy", { locale: ru, timeZone: STUDIO_TZ });
 }
 
 export function formatDateTime(date: Date | string): string {
-  return format(new Date(date), "d MMMM yyyy, HH:mm", { locale: ru });
+  return format(new Date(date), "d MMMM yyyy, HH:mm", { locale: ru, timeZone: STUDIO_TZ });
 }
 
 export function formatTime(date: Date | string): string {
-  return format(new Date(date), "HH:mm");
+  return format(new Date(date), "HH:mm", { timeZone: STUDIO_TZ });
 }
 
 export function formatDateShort(date: Date | string): string {
-  return format(new Date(date), "d MMM", { locale: ru });
+  return format(new Date(date), "d MMM", { locale: ru, timeZone: STUDIO_TZ });
 }
 
 export function formatRelative(date: Date | string): string {

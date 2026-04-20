@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { startOfDay, endOfDay, addDays, format } from "date-fns";
+import { startOfDay, endOfDay, addDays } from "date-fns";
+import { format } from "date-fns-tz";
 import { ru } from "date-fns/locale";
+import { STUDIO_TZ } from "@/lib/utils";
 import { formatTime, formatRub, canCancelBooking } from "@/lib/utils";
 import { BookSessionButton } from "@/components/features/booking/book-session-button";
 import { Badge } from "@/components/ui/badge";
@@ -47,7 +49,7 @@ export default async function ClientSchedulePage() {
 
   // Group by date
   const byDate = sessions.reduce<Record<string, typeof sessions>>((acc, s) => {
-    const key = format(s.startTime, "yyyy-MM-dd");
+    const key = format(s.startTime, "yyyy-MM-dd", { timeZone: STUDIO_TZ });
     if (!acc[key]) acc[key] = [];
     acc[key].push(s);
     return acc;
@@ -85,8 +87,8 @@ export default async function ClientSchedulePage() {
 
       <div className="space-y-6">
         {dates.map((dateKey) => {
-          const dateObj = new Date(dateKey);
-          const label = format(dateObj, "EEEE, d MMMM", { locale: ru });
+          const dateObj = new Date(dateKey + "T00:00:00Z");
+          const label = format(dateObj, "EEEE, d MMMM", { locale: ru, timeZone: STUDIO_TZ });
 
           return (
             <div key={dateKey}>

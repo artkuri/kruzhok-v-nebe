@@ -63,9 +63,9 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
           maxStudents: Number(form.maxStudents),
           isActive:    form.isActive,
           teacherId:   form.teacherId || null,
-          // Send timezone only when time fields changed — needed for session sync
+          // Всегда используем часовой пояс студии (UTC+5, Екатеринбург)
           ...(timeChanged && {
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezone: "Asia/Yekaterinburg",
           }),
         }),
       });

@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { startOfDay, addDays, endOfDay, format } from "date-fns";
+import { startOfDay, addDays, endOfDay } from "date-fns";
+import { format } from "date-fns-tz";
 import { ru } from "date-fns/locale";
-import { formatTime } from "@/lib/utils";
+import { formatTime, STUDIO_TZ } from "@/lib/utils";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Users, Clock } from "lucide-react";
@@ -25,7 +26,7 @@ export default async function AdminClassesPage() {
   });
 
   const byDate = sessions.reduce<Record<string, typeof sessions>>((acc, s) => {
-    const key = format(s.startTime, "yyyy-MM-dd");
+    const key = format(s.startTime, "yyyy-MM-dd", { timeZone: STUDIO_TZ });
     if (!acc[key]) acc[key] = [];
     acc[key].push(s);
     return acc;
@@ -48,11 +49,11 @@ export default async function AdminClassesPage() {
 
       <div className="space-y-6">
         {dates.map((dateKey) => {
-          const dateObj = new Date(dateKey + "T00:00:00");
+          const dateObj = new Date(dateKey + "T00:00:00Z");
           return (
             <div key={dateKey}>
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 capitalize">
-                {format(dateObj, "EEEE, d MMMM", { locale: ru })}
+                {format(dateObj, "EEEE, d MMMM", { locale: ru, timeZone: STUDIO_TZ })}
               </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {byDate[dateKey].map((s) => (

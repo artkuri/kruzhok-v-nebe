@@ -6,13 +6,14 @@ import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { format, fromZonedTime } from "date-fns-tz";
+import { STUDIO_TZ } from "@/lib/utils";
 
 interface Props {
   sessionId: string;
   initial: {
-    startTime: string; // ISO
-    endTime: string;
+    startTime: string; // ISO UTC
+    endTime: string;   // ISO UTC
     maxStudents: number;
     durationMin: number;
     notes: string | null;
@@ -20,18 +21,17 @@ interface Props {
   isStarted: boolean;
 }
 
-function toLocalInput(iso: string) {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+/** UTC ISO → "YYYY-MM-DDTHH:mm" в часовом поясе студии (для datetime-local input) */
+function toStudioInput(iso: string) {
+  return format(new Date(iso), "yyyy-MM-dd'T'HH:mm", { timeZone: STUDIO_TZ });
 }
 
 export function EditSessionButton({ sessionId, initial, isStarted }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
-    startTime: toLocalInput(initial.startTime),
-    endTime: toLocalInput(initial.endTime),
+    startTime: toStudioInput(initial.startTime),
+    endTime: toStudioInput(initial.endTime),
     maxStudents: String(initial.maxStudents),
     durationMin: String(initial.durationMin),
     notes: initial.notes ?? "",
@@ -52,8 +52,8 @@ export function EditSessionButton({ sessionId, initial, isStarted }: Props) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          startTime: new Date(form.startTime).toISOString(),
-          endTime: new Date(form.endTime).toISOString(),
+          startTime: fromZonedTime(form.startTime, STUDIO_TZ).toISOString(),
+          endTime:   fromZonedTime(form.endTime,   STUDIO_TZ).toISOString(),
           maxStudents: Number(form.maxStudents),
           durationMin: Number(form.durationMin),
           notes: form.notes || null,

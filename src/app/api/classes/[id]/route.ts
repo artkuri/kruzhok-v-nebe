@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { startOfDay } from "date-fns";
 import { z } from "zod";
+import { fromZonedTime, format } from "date-fns-tz";
+import { STUDIO_TZ } from "@/lib/utils";
 
 const updateSchema = z.object({
   teacherId: z.string().nullable().optional(),
@@ -33,8 +34,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       ...(data.durationMin !== undefined && { durationMin: data.durationMin }),
       ...(data.startTime !== undefined && {
         startTime: new Date(data.startTime),
-        // Keep `date` in sync — it drives the list-page filter
-        date: startOfDay(new Date(data.startTime)),
+        // date хранится как UTC-полночь Екатеринбургской календарной даты
+        date: fromZonedTime(
+          format(new Date(data.startTime), "yyyy-MM-dd", { timeZone: STUDIO_TZ }) + "T00:00:00",
+          STUDIO_TZ,
+        ),
       }),
       ...(data.endTime !== undefined && { endTime: new Date(data.endTime) }),
       ...(data.notes !== undefined && { notes: data.notes }),
@@ -43,6 +47,23 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       teacher: { include: { user: true } },
       direction: true,
     },
+  });
+
+  return NextResponse.json(classSession);
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  if (!session?.user || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  // Мягкое удаление — переводим в CANCELLED (сохраняет историю бронирований)
+  const classSession = await prisma.classSession.update({
+    where: { id },
+    data: { status: "CANCELLED" },
   });
 
   return NextResponse.json(classSession);

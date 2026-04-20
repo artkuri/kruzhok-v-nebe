@@ -2,31 +2,30 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
-import { format } from "date-fns";
+import { fromZonedTime, toZonedTime, format } from "date-fns-tz";
+import { STUDIO_TZ } from "@/lib/utils";
 
 const updateSchema = z.object({
   teacherId:   z.string().nullable().optional(),
-  startTime:   z.string().regex(/^\d{2}:\d{2}$/).optional(), // "HH:MM"
+  startTime:   z.string().regex(/^\d{2}:\d{2}$/).optional(), // "HH:MM" в часовом поясе студии
   durationMin: z.number().int().min(15).max(480).optional(),
   maxStudents: z.number().int().min(1).max(100).optional(),
   isActive:    z.boolean().optional(),
-  // IANA timezone sent from the browser — used to sync future sessions
-  timezone:    z.string().optional(),
+  timezone:    z.string().optional(), // игнорируется, оставлен для обратной совместимости
 });
 
 /**
  * Re-stamps startTime/endTime on future sessions linked to a slot.
- * Uses the admin's browser timezone so "19:00" means 19:00 local, not UTC.
+ * Время всегда интерпретируется в часовом поясе студии (STUDIO_TZ, UTC+5).
  * Only touches SCHEDULED sessions in the future (status not COMPLETED/CANCELLED/IN_PROGRESS).
  * Never creates or deletes sessions — only updates time fields.
  */
 async function syncFutureSessions(
   slotId: string,
-  newStartTime: string, // "HH:MM"
+  newStartTime: string, // "HH:MM" в часовом поясе студии
   newDurationMin: number,
-  timezone: string,
 ): Promise<number> {
+  const timezone = STUDIO_TZ;
   const now = new Date();
 
   const sessions = await prisma.classSession.findMany({
@@ -92,12 +91,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   });
 
   let updatedSessions = 0;
-  if (timeChanged && data.timezone) {
+  if (timeChanged) {
     updatedSessions = await syncFutureSessions(
       id,
       slot.startTime,
       slot.durationMin,
-      data.timezone,
     );
   }
 

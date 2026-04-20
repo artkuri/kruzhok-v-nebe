@@ -3,8 +3,10 @@ import { notFound } from "next/navigation";
 import { formatDateTime, formatTime } from "@/lib/utils";
 import { AttendanceMarker } from "@/components/features/admin/attendance-marker";
 import { AdminBookingCreator } from "@/components/features/admin/booking-creator";
+import { AdminCancelBookingButton } from "@/components/features/admin/admin-cancel-booking-button";
 import { AssignTeacherSelect } from "@/components/features/admin/assign-teacher-select";
 import { EditSessionButton } from "@/components/features/admin/edit-session-button";
+import { CancelSessionButton } from "@/components/features/admin/cancel-session-button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock } from "lucide-react";
 import Link from "next/link";
@@ -32,6 +34,8 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
 
   const activeBookings = session.bookings.filter((b) => b.status !== "CANCELLED");
   const isStarted = new Date(session.startTime) <= new Date();
+  const isCancelled = session.status === "CANCELLED";
+  const canCancel = !isCancelled && session.status !== "COMPLETED";
   const [families, teachers] = await Promise.all([
     prisma.family.findMany({ include: { children: true } }),
     prisma.teacher.findMany({
@@ -71,7 +75,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
             >
               {session.direction.name}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge variant={sessionStatus.variant}>{sessionStatus.label}</Badge>
               <EditSessionButton
                 sessionId={session.id}
@@ -84,6 +88,7 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
                 }}
                 isStarted={isStarted}
               />
+              {canCancel && <CancelSessionButton sessionId={session.id} />}
             </div>
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-1">
@@ -151,8 +156,15 @@ export default async function ClassDetailPage({ params }: { params: Promise<{ id
                   <AttendanceMarker
                     bookingId={b.id}
                     currentAttendance={b.attendance}
-                    sessionStarted={new Date(session.startTime) <= new Date()}
+                    sessionStarted={isStarted}
                   />
+                  {!isCancelled && (
+                    <AdminCancelBookingButton
+                      bookingId={b.id}
+                      childName={b.child.name}
+                      hasSubscription={!!b.subscriptionUsage}
+                    />
+                  )}
                 </div>
               );
             })}

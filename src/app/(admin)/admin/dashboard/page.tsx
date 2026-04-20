@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, addDays, format } from "date-fns";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, addDays } from "date-fns";
+import { format } from "date-fns-tz";
 import { ru } from "date-fns/locale";
+import { STUDIO_TZ } from "@/lib/utils";
 import { formatDateTime, formatRub } from "@/lib/utils";
 import { Users, CalendarDays, CreditCard, Banknote } from "lucide-react";
 import Link from "next/link";
@@ -105,7 +107,7 @@ export default async function DashboardPage() {
         {/* Today's sessions */}
         <div className="rounded-2xl border border-gray-100 bg-white p-5">
           <h2 className="font-semibold text-gray-900 mb-4">
-            Занятия сегодня — {format(now, "d MMMM", { locale: ru })}
+            Занятия сегодня — {format(now, "d MMMM", { locale: ru, timeZone: STUDIO_TZ })}
           </h2>
           {todaySessions.length === 0 ? (
             <p className="text-sm text-gray-400">Занятий сегодня нет</p>
@@ -128,7 +130,7 @@ export default async function DashboardPage() {
                       </span>
                     </div>
                     <p className="text-xs text-gray-400 mt-0.5">
-                      {format(s.startTime, "HH:mm")}
+                      {format(s.startTime, "HH:mm", { timeZone: STUDIO_TZ })}
                       {s.teacher && ` · ${s.teacher.user.name}`}
                     </p>
                   </div>
