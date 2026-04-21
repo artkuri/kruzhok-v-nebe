@@ -78,7 +78,7 @@ export default function HomePage() {
               <Button size="lg" className="bg-white text-brand-700 hover:bg-brand-50 shadow-md" asChild>
                 <Link href="/register">Записаться на занятие</Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-white/60 text-white hover:bg-white/10" asChild>
+              <Button size="lg" className="bg-white/15 border border-white/50 text-white hover:bg-white/25 backdrop-blur-sm" asChild>
                 <Link href="/schedule">Смотреть расписание</Link>
               </Button>
             </div>
