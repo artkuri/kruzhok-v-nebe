@@ -16,7 +16,7 @@ export default async function ClientSchedulePage() {
   const userId = (session!.user as any).id;
   const familyId = (session!.user as any).familyId;
 
-  const [sessions, children, subscriptions] = await Promise.all([
+  const [sessions, children, activeSubs] = await Promise.all([
     prisma.classSession.findMany({
       where: {
         status: "SCHEDULED",
@@ -42,7 +42,6 @@ export default async function ClientSchedulePage() {
         familyId: familyId || "",
         isActive: true,
         validUntil: { gte: new Date() },
-        usedClasses: { lt: prisma.subscription.fields.totalClasses as any },
       },
     }),
   ]);
@@ -56,17 +55,6 @@ export default async function ClientSchedulePage() {
   }, {});
 
   const dates = Object.keys(byDate).sort();
-
-  // Check active subscriptions properly
-  const activeSubs = await prisma.subscription.findMany({
-    where: {
-      familyId: familyId || "",
-      isActive: true,
-      validUntil: { gte: new Date() },
-    },
-  });
-
-  const hasActiveSub = activeSubs.some((s) => s.usedClasses < s.totalClasses);
 
   return (
     <div className="space-y-6">
