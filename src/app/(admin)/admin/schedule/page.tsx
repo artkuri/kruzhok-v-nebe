@@ -6,6 +6,7 @@ import { CreateScheduleSlotButton } from "@/components/features/admin/create-sch
 import { EditScheduleSlotButton } from "@/components/features/admin/edit-schedule-slot-button";
 import { DeleteScheduleSlotButton } from "@/components/features/admin/delete-schedule-slot-button";
 import { GenerateSessionsButton } from "@/components/features/admin/generate-sessions-button";
+import { DeleteSessionsButton } from "@/components/features/admin/delete-sessions-button";
 
 export const metadata = { title: "Расписание" };
 
@@ -54,7 +55,8 @@ export default async function AdminSchedulePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <h1 className="text-2xl font-bold text-gray-900">Шаблон расписания</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <DeleteSessionsButton />
           <GenerateSessionsButton slots={slotData} />
           <CreateScheduleSlotButton directions={directionData} teachers={teacherData} />
         </div>
