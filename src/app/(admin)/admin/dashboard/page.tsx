@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, addDays } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { getISODay } from "date-fns";
+import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
 import { ru } from "date-fns/locale";
 import { STUDIO_TZ } from "@/lib/utils";
 import { formatDateTime, formatRub } from "@/lib/utils";
@@ -11,10 +11,26 @@ export const metadata = { title: "Дашборд" };
 
 export default async function DashboardPage() {
   const now = new Date();
-  const todayStart = startOfDay(now);
-  const todayEnd = endOfDay(now);
-  const weekStart = startOfWeek(now, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+
+  // Boundaries in studio timezone (UTC+5), not server UTC
+  const todayStr = formatInTimeZone(now, STUDIO_TZ, "yyyy-MM-dd");
+  const todayStart = fromZonedTime(todayStr + "T00:00:00", STUDIO_TZ);
+  const todayEnd   = fromZonedTime(todayStr + "T23:59:59.999", STUDIO_TZ);
+
+  // Week boundaries: find Monday and Sunday of the current studio-TZ week
+  const nowZoned  = toZonedTime(now, STUDIO_TZ);
+  const isoDay    = getISODay(nowZoned); // 1=Mon … 7=Sun
+  const msPerDay  = 86_400_000;
+  const mondayStart = fromZonedTime(
+    formatInTimeZone(new Date(todayStart.getTime() - (isoDay - 1) * msPerDay), STUDIO_TZ, "yyyy-MM-dd") + "T00:00:00",
+    STUDIO_TZ,
+  );
+  const sundayEnd = fromZonedTime(
+    formatInTimeZone(new Date(todayStart.getTime() + (7 - isoDay) * msPerDay), STUDIO_TZ, "yyyy-MM-dd") + "T23:59:59.999",
+    STUDIO_TZ,
+  );
+  const weekStart = mondayStart;
+  const weekEnd   = sundayEnd;
 
   const [
     totalClients,
