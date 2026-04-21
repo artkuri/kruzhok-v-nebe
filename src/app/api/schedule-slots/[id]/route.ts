@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { fromZonedTime, toZonedTime, format } from "date-fns-tz";
+import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import { STUDIO_TZ } from "@/lib/utils";
 
 const updateSchema = z.object({
@@ -44,8 +44,7 @@ async function syncFutureSessions(
   await prisma.$transaction(
     sessions.map((s) => {
       // Convert existing UTC startTime → local date in the admin's timezone
-      const zonedDate = toZonedTime(s.startTime, timezone);
-      const localDateStr = format(zonedDate, "yyyy-MM-dd", { timeZone: timezone });
+      const localDateStr = formatInTimeZone(s.startTime, timezone, "yyyy-MM-dd");
 
       // Apply new HH:MM to that local date, then convert back to UTC
       const newLocalStr = `${localDateStr}T${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:00`;

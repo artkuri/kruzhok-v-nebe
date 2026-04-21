@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import { fromZonedTime, format } from "date-fns-tz";
+import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import { STUDIO_TZ } from "@/lib/utils";
 
 const updateSchema = z.object({
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         startTime: new Date(data.startTime),
         // date хранится как UTC-полночь Екатеринбургской календарной даты
         date: fromZonedTime(
-          format(new Date(data.startTime), "yyyy-MM-dd", { timeZone: STUDIO_TZ }) + "T00:00:00",
+          formatInTimeZone(new Date(data.startTime), STUDIO_TZ, "yyyy-MM-dd") + "T00:00:00",
           STUDIO_TZ,
         ),
       }),

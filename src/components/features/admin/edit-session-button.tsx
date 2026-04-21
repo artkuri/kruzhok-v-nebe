@@ -6,7 +6,7 @@ import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { format, fromZonedTime } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { STUDIO_TZ } from "@/lib/utils";
 
 interface Props {
@@ -23,7 +23,7 @@ interface Props {
 
 /** UTC ISO → "YYYY-MM-DDTHH:mm" в часовом поясе студии (для datetime-local input) */
 function toStudioInput(iso: string) {
-  return format(new Date(iso), "yyyy-MM-dd'T'HH:mm", { timeZone: STUDIO_TZ });
+  return formatInTimeZone(new Date(iso), STUDIO_TZ, "yyyy-MM-dd'T'HH:mm");
 }
 
 export function EditSessionButton({ sessionId, initial, isStarted }: Props) {

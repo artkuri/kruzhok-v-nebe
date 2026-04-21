@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { startOfDay, addDays, endOfDay } from "date-fns";
-import { format } from "date-fns-tz";
+import { formatInTimeZone } from "date-fns-tz";
 import { ru } from "date-fns/locale";
 import { formatTime, STUDIO_TZ } from "@/lib/utils";
 import Link from "next/link";
@@ -26,7 +26,7 @@ export default async function AdminClassesPage() {
   });
 
   const byDate = sessions.reduce<Record<string, typeof sessions>>((acc, s) => {
-    const key = format(s.startTime, "yyyy-MM-dd", { timeZone: STUDIO_TZ });
+    const key = formatInTimeZone(s.startTime, STUDIO_TZ, "yyyy-MM-dd");
     if (!acc[key]) acc[key] = [];
     acc[key].push(s);
     return acc;
@@ -53,7 +53,7 @@ export default async function AdminClassesPage() {
           return (
             <div key={dateKey}>
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 capitalize">
-                {format(dateObj, "EEEE, d MMMM", { locale: ru, timeZone: STUDIO_TZ })}
+                {formatInTimeZone(dateObj, STUDIO_TZ, "EEEE, d MMMM", { locale: ru })}
               </h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {byDate[dateKey].map((s) => (
