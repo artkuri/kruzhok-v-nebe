@@ -24,11 +24,16 @@ export function PublicHeader() {
       <div className="page-container">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-display font-bold text-brand-600 text-lg">
-            <div className="h-8 w-8 rounded-full bg-sun-400 flex items-center justify-center flex-shrink-0">
-              <div className="h-4 w-4 rounded-full bg-brand-500" />
+          <Link href="/" className="flex items-center gap-2.5">
+            {/* Cloud + sun logo mark */}
+            <div className="relative h-9 w-9 flex-shrink-0">
+              <div className="absolute inset-0 rounded-2xl bg-brand-400" />
+              <div className="absolute right-0.5 top-0.5 h-3.5 w-3.5 rounded-full bg-sun-400" />
             </div>
-            <span className="hidden sm:block">Кружок в небе</span>
+            <div className="hidden sm:block leading-tight">
+              <span className="font-display font-bold text-brand-400 text-base">Кружок</span>
+              <span className="font-display font-bold text-sun-400 text-base"> в небе</span>
+            </div>
           </Link>
 
           {/* Desktop nav */}

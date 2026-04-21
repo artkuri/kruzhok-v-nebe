@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Palette, Heart, Scissors, Layers, Star, Users, Clock, MapPin } from "lucide-react";
+import { Palette, Heart, Scissors, Layers, Users, Clock, MapPin, Star } from "lucide-react";
 
 export const metadata = {
   title: "Студия творчества для детей и взрослых",
@@ -13,146 +13,154 @@ const DIRECTIONS = [
     desc: "Живопись, акварель, графика — от азов до своего стиля",
     bg: "bg-amber-50",
     icon_color: "text-amber-500",
-    border: "border-amber-100",
   },
   {
     icon: Heart,
     name: "Арт-терапия",
     desc: "Творческие занятия для эмоционального развития детей",
-    bg: "bg-rose-50",
-    icon_color: "text-rose-500",
-    border: "border-rose-100",
+    bg: "bg-[#EDE9FE]",
+    icon_color: "text-[#A78BFA]",
   },
   {
     icon: Scissors,
     name: "Рукоделие",
     desc: "Вышивка, вязание, декупаж, скрапбукинг",
-    bg: "bg-violet-50",
-    icon_color: "text-violet-500",
-    border: "border-violet-100",
+    bg: "bg-rose-50",
+    icon_color: "text-rose-400",
   },
   {
     icon: Layers,
     name: "Керамика",
     desc: "Лепка из глины, гончарный круг, роспись",
-    bg: "bg-emerald-50",
-    icon_color: "text-emerald-500",
-    border: "border-emerald-100",
+    bg: "bg-brand-50",
+    icon_color: "text-brand-400",
   },
 ];
 
 const FEATURES = [
-  { icon: Users, label: "Малые группы", desc: "До 10 человек" },
-  { icon: Star, label: "Опытные педагоги", desc: "Профессионалы своего дела" },
-  { icon: Clock, label: "Удобное время", desc: "Вечера и выходные" },
-  { icon: MapPin, label: "Центр города", desc: "Удобная локация" },
+  { icon: Users,  label: "Малые группы",    desc: "До 10 человек" },
+  { icon: Star,   label: "Опытные педагоги", desc: "Профессионалы своего дела" },
+  { icon: Clock,  label: "Удобное время",   desc: "Вечера и выходные" },
+  { icon: MapPin, label: "Шмидтово",        desc: "Удобная локация" },
 ];
 
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-brand-400 to-brand-600 py-20 sm:py-28">
+      {/* ── Hero ── */}
+      <section className="bg-brand-50 py-14 sm:py-20 overflow-hidden">
+        <div className="page-container">
+          <div className="grid sm:grid-cols-2 gap-10 items-center">
 
-        {/* === Illustrations === */}
+            {/* Left — text */}
+            <div className="relative z-10">
+              {/* Badge */}
+              <span className="inline-flex items-center gap-2 bg-white border border-brand-200 text-brand-500 rounded-full px-4 py-1.5 text-sm font-medium mb-6 shadow-sm">
+                <span className="h-2 w-2 rounded-full bg-brand-400 inline-block" />
+                Студия творчества в Шмидтово
+              </span>
 
-        {/* Sun — top right */}
-        <svg className="absolute -top-6 right-6 sm:right-16 w-36 sm:w-52 opacity-95" viewBox="0 0 120 120" fill="none">
-          {[0,45,90,135,180,225,270,315].map((deg, i) => (
-            <rect key={i} x="54" y="4" width="12" height="24" rx="6" fill="#FFD93D"
-              transform={`rotate(${deg} 60 60)`} />
-          ))}
-          <circle cx="60" cy="60" r="32" fill="#FFD93D" />
-          <circle cx="60" cy="60" r="25" fill="#FFE680" opacity="0.55" />
-        </svg>
+              <h1 className="font-display text-4xl sm:text-5xl font-bold text-[#1F2937] leading-tight mb-5">
+                Развитие<br />
+                и <span className="text-brand-400">творчество</span><br />
+                для вашего ребёнка
+              </h1>
 
-        {/* Cloud — top left */}
-        <svg className="absolute -top-2 -left-8 w-52 sm:w-72 opacity-75" viewBox="0 0 200 90" fill="white">
-          <circle cx="55"  cy="62" r="32" />
-          <circle cx="95"  cy="50" r="42" />
-          <circle cx="148" cy="60" r="30" />
-          <rect   x="23"   y="60" width="155" height="30" rx="8" />
-        </svg>
+              <p className="text-gray-500 text-lg mb-8 max-w-sm leading-relaxed">
+                Ребёнок раскрывается, учится новому и становится увереннее уже за 1 месяц
+              </p>
 
-        {/* Cloud — bottom left */}
-        <svg className="absolute -bottom-4 -left-4 w-64 sm:w-96 opacity-60" viewBox="0 0 260 100" fill="white">
-          <circle cx="65"  cy="68" r="38" />
-          <circle cx="115" cy="55" r="50" />
-          <circle cx="178" cy="65" r="36" />
-          <circle cx="230" cy="70" r="28" />
-          <rect   x="27"   y="68" width="231" height="32" rx="8" />
-        </svg>
+              <div className="flex flex-wrap gap-3">
+                <Button size="lg"
+                  className="bg-sun-400 hover:bg-sun-500 text-[#1F2937] font-semibold rounded-2xl shadow-md px-8"
+                  asChild>
+                  <Link href="/register">Записаться на занятие</Link>
+                </Button>
+                <Button size="lg" variant="outline"
+                  className="border-brand-300 text-brand-500 hover:bg-brand-50 rounded-2xl"
+                  asChild>
+                  <Link href="/schedule">Расписание</Link>
+                </Button>
+              </div>
+            </div>
 
-        {/* Cloud — right mid */}
-        <svg className="absolute top-1/2 -right-4 w-40 sm:w-56 opacity-50" viewBox="0 0 180 80" fill="white">
-          <circle cx="45"  cy="52" r="28" />
-          <circle cx="85"  cy="42" r="36" />
-          <circle cx="136" cy="55" r="24" />
-          <rect   x="17"   y="52" width="143" height="28" rx="8" />
-        </svg>
+            {/* Right — illustration */}
+            <div className="relative">
+              <div className="relative rounded-[28px] overflow-hidden shadow-xl bg-gradient-to-br from-brand-300 to-brand-500 h-72 sm:h-[380px]">
+                <svg viewBox="0 0 420 340" className="w-full h-full" fill="none">
 
-        {/* Paper airplane */}
-        <svg className="absolute top-1/4 left-[18%] sm:left-[28%] w-16 sm:w-24 opacity-90 drop-shadow-sm" viewBox="0 0 90 56" fill="none">
-          {/* Body */}
-          <polygon points="0,28 90,4 72,52" fill="white" />
-          {/* Inner fold shadow */}
-          <polygon points="0,28 72,52 36,34" fill="rgba(0,130,160,0.2)" />
-          {/* Tail */}
-          <polygon points="36,34 72,52 46,60" fill="white" opacity="0.7" />
-          {/* Crease line */}
-          <line x1="0" y1="28" x2="72" y2="52" stroke="rgba(0,130,160,0.3)" strokeWidth="1" />
-        </svg>
+                  {/* Sun */}
+                  {[0,40,80,120,160,200,240,280,320].map((deg) => (
+                    <rect key={deg} x="372" y="10" width="10" height="22" rx="5"
+                      fill="#FFD93D" transform={`rotate(${deg} 388 55)`} />
+                  ))}
+                  <circle cx="388" cy="55" r="36" fill="#FFD93D" />
+                  <circle cx="388" cy="55" r="28" fill="#FFE680" opacity="0.5" />
 
-        {/* Sparkle — top left */}
-        <svg className="absolute top-10 left-10 w-7 opacity-80" viewBox="0 0 40 40">
-          <polygon points="20,1 23,17 39,20 23,23 20,39 17,23 1,20 17,17" fill="#FFE680" />
-        </svg>
-        {/* Sparkle — bottom right */}
-        <svg className="absolute bottom-16 right-16 sm:right-32 w-5 opacity-60" viewBox="0 0 40 40">
-          <polygon points="20,1 23,17 39,20 23,23 20,39 17,23 1,20 17,17" fill="white" />
-        </svg>
-        {/* Sparkle — mid right */}
-        <svg className="absolute top-1/3 right-28 sm:right-56 w-4 opacity-50" viewBox="0 0 40 40">
-          <polygon points="20,1 23,17 39,20 23,23 20,39 17,23 1,20 17,17" fill="#FFE680" />
-        </svg>
+                  {/* Cloud 1 — top left */}
+                  <g fill="white" opacity="0.92">
+                    <circle cx="55"  cy="72" r="30" />
+                    <circle cx="92"  cy="58" r="40" />
+                    <circle cx="140" cy="70" r="28" />
+                    <rect   x="25"   y="72" width="143" height="30" rx="8" />
+                  </g>
 
-        {/* === Content === */}
-        <div className="page-container relative z-10 text-center">
-          <div className="inline-flex items-center gap-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-5 py-2 mb-8">
-            <svg viewBox="0 0 20 20" className="w-4 h-4 flex-shrink-0" fill="#FFD93D">
-              <polygon points="10,1 12,8 19,8 13,12 15,19 10,15 5,19 7,12 1,8 8,8" />
-            </svg>
-            <span className="font-display text-white font-semibold text-sm tracking-wide">Студия творчества в Шмидтово</span>
+                  {/* Cloud 2 — mid right */}
+                  <g fill="white" opacity="0.70">
+                    <circle cx="295" cy="155" r="22" />
+                    <circle cx="328" cy="145" r="30" />
+                    <circle cx="364" cy="158" r="20" />
+                    <rect   x="273" y="155" width="111" height="23" rx="7" />
+                  </g>
+
+                  {/* Cloud 3 — bottom */}
+                  <g fill="white" opacity="0.55">
+                    <circle cx="80"  cy="285" r="35" />
+                    <circle cx="130" cy="272" r="46" />
+                    <circle cx="195" cy="284" r="32" />
+                    <circle cx="250" cy="288" r="26" />
+                    <rect   x="45"   y="285" width="231" height="55" rx="10" />
+                  </g>
+
+                  {/* Paper airplane */}
+                  <g>
+                    <polygon points="55,190 205,148 182,212" fill="white" opacity="0.95" />
+                    <polygon points="55,190 182,212 115,196" fill="rgba(10,100,140,0.2)" />
+                    <polygon points="115,196 182,212 148,228" fill="white" opacity="0.75" />
+                  </g>
+                  {/* Dotted trail */}
+                  <path d="M44,195 Q110,168 198,152"
+                    stroke="white" strokeWidth="2.5" strokeDasharray="7,6" opacity="0.55" />
+
+                  {/* Stars */}
+                  <polygon points="260,90 262,98 270,98 264,103 266,111 260,106 254,111 256,103 250,98 258,98"
+                    fill="#FFE680" opacity="0.9" />
+                  <polygon points="165,210 167,216 173,216 168,220 170,226 165,222 160,226 162,220 157,216 163,216"
+                    fill="white" opacity="0.6" />
+                  <polygon points="310,225 311,229 315,229 312,232 313,236 310,233 307,236 308,232 305,229 309,229"
+                    fill="#FFE680" opacity="0.7" />
+
+                  {/* Art dots (palette hint) */}
+                  <circle cx="230" cy="200" r="7" fill="#A78BFA" opacity="0.75" />
+                  <circle cx="248" cy="212" r="5" fill="#FFD93D" opacity="0.8" />
+                  <circle cx="216" cy="215" r="6" fill="white"   opacity="0.6" />
+                </svg>
+              </div>
+
+              {/* Floating badge */}
+              <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-sun-400 flex items-center justify-center text-lg">🎨</div>
+                <div>
+                  <p className="text-xs text-gray-400">Занятий проведено</p>
+                  <p className="font-display font-bold text-[#1F2937]">500+</p>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <h1 className="font-display text-4xl sm:text-6xl font-bold text-white leading-tight mb-5 drop-shadow-sm">
-            Развитие<br />
-            <span className="text-sun-300">и творчество</span><br />
-            для вашего ребёнка
-          </h1>
-          <p className="text-white/80 text-lg sm:text-xl mb-10 max-w-lg mx-auto">
-            Рисование, арт-терапия, рукоделие и керамика.<br />
-            Малые группы и опытные педагоги.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button size="lg" className="bg-sun-400 hover:bg-sun-500 text-gray-900 font-semibold shadow-lg text-base" asChild>
-              <Link href="/register">Записаться на занятие</Link>
-            </Button>
-            <Button size="lg" className="bg-white/15 border border-white/40 text-white hover:bg-white/25 backdrop-blur-sm text-base" asChild>
-              <Link href="/schedule">Смотреть расписание</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Wave divider */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 64" className="w-full" preserveAspectRatio="none" fill="white">
-            <path d="M0,32 C240,64 480,0 720,32 C960,64 1200,0 1440,32 L1440,64 L0,64 Z" />
-          </svg>
         </div>
       </section>
 
-      {/* Features */}
+      {/* ── Features ── */}
       <section className="py-12 bg-white border-b border-gray-100">
         <div className="page-container">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
@@ -161,10 +169,10 @@ export default function HomePage() {
               return (
                 <div key={f.label} className="text-center">
                   <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-brand-50 flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-brand-500" />
+                    <Icon className="h-6 w-6 text-brand-400" />
                   </div>
-                  <p className="text-sm font-semibold text-gray-900">{f.label}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{f.desc}</p>
+                  <p className="text-sm font-semibold text-[#1F2937]">{f.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{f.desc}</p>
                 </div>
               );
             })}
@@ -172,28 +180,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Directions */}
-      <section className="py-16 bg-gray-50">
+      {/* ── Directions ── */}
+      <section className="py-16 bg-brand-50">
         <div className="page-container">
           <div className="text-center mb-10">
-            <h2 className="font-display text-3xl font-bold text-gray-900 mb-3">Наши направления</h2>
+            <h2 className="font-display text-3xl font-bold text-[#1F2937] mb-3">Наши направления</h2>
             <p className="text-gray-500 max-w-xl mx-auto">
-              Выбирайте занятия по интересам и возрасту. Все направления подходят для начинающих.
+              Выбирайте по интересам и возрасту. Все направления подходят для начинающих.
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {DIRECTIONS.map((d) => {
               const Icon = d.icon;
               return (
-                <Link
-                  key={d.name}
-                  href="/directions"
-                  className={`group rounded-2xl border bg-white p-6 hover:shadow-md transition-all hover:-translate-y-0.5 ${d.border}`}
-                >
-                  <div className={`mb-4 h-12 w-12 rounded-2xl flex items-center justify-center ${d.bg}`}>
+                <Link key={d.name} href="/directions"
+                  className="group rounded-2xl bg-white p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+                  <div className={`mb-4 h-12 w-12 rounded-xl flex items-center justify-center ${d.bg}`}>
                     <Icon className={`h-6 w-6 ${d.icon_color}`} />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-brand-500 transition-colors">
+                  <h3 className="font-semibold text-[#1F2937] mb-2 group-hover:text-brand-400 transition-colors">
                     {d.name}
                   </h3>
                   <p className="text-sm text-gray-500">{d.desc}</p>
@@ -204,48 +209,73 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Prices teaser */}
-      <section className="py-16 bg-gradient-to-br from-brand-500 to-brand-700 text-white relative overflow-hidden">
-        <div className="absolute top-4 right-8 h-20 w-20 rounded-full bg-sun-400/30 blur-xl" />
-        <div className="absolute bottom-4 left-8 h-16 w-16 rounded-full bg-white/10 blur-xl" />
-        <div className="page-container text-center relative z-10">
-          <h2 className="font-display text-3xl font-bold mb-4">Семейные абонементы</h2>
-          <p className="text-brand-100 mb-8 max-w-lg mx-auto text-lg">
-            Один абонемент на всю семью. Используйте для нескольких детей. Действует 1 год.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-8">
-            <div className="rounded-2xl bg-white/15 backdrop-blur border border-white/20 p-6">
-              <p className="text-brand-100 text-sm mb-1">Рисование / Арт-терапия</p>
-              <p className="text-2xl font-bold">3 600 ₽</p>
-              <p className="text-brand-200 text-xs mt-1">8 занятий, свои материалы</p>
+      {/* ── Prices teaser ── */}
+      <section className="py-16 bg-white">
+        <div className="page-container">
+          <div className="text-center mb-10">
+            <h2 className="font-display text-3xl font-bold text-[#1F2937] mb-3">Семейные абонементы</h2>
+            <p className="text-gray-500 max-w-lg mx-auto">
+              Один абонемент на всю семью. Используйте для нескольких детей. Действует 1 год.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto mb-8">
+            <div className="rounded-2xl border border-gray-100 bg-brand-50 p-6 text-center">
+              <p className="text-gray-500 text-sm mb-2">Рисование / Арт-терапия</p>
+              <p className="font-display text-3xl font-bold text-[#1F2937]">3 600 ₽</p>
+              <p className="text-gray-400 text-xs mt-1">8 занятий, свои материалы</p>
             </div>
-            <div className="rounded-2xl bg-sun-400 border border-sun-300/30 p-6">
-              <p className="text-amber-900 text-sm mb-1 font-medium">Рисование / Арт-терапия</p>
-              <p className="text-2xl font-bold text-amber-900">4 800 ₽</p>
-              <p className="text-amber-800 text-xs mt-1">8 занятий, материалы студии</p>
+            <div className="rounded-2xl border-2 border-sun-400 bg-sun-400 p-6 text-center shadow-md">
+              <p className="text-amber-900 text-sm font-medium mb-2">Рисование / Арт-терапия</p>
+              <p className="font-display text-3xl font-bold text-amber-900">4 800 ₽</p>
+              <p className="text-amber-700 text-xs mt-1">8 занятий + материалы студии</p>
             </div>
-            <div className="rounded-2xl bg-white/15 backdrop-blur border border-white/20 p-6">
-              <p className="text-brand-100 text-sm mb-1">Рукоделие / Керамика</p>
-              <p className="text-2xl font-bold">4 800 ₽</p>
-              <p className="text-brand-200 text-xs mt-1">8 занятий</p>
+            <div className="rounded-2xl border border-gray-100 bg-brand-50 p-6 text-center">
+              <p className="text-gray-500 text-sm mb-2">Рукоделие / Керамика</p>
+              <p className="font-display text-3xl font-bold text-[#1F2937]">4 800 ₽</p>
+              <p className="text-gray-400 text-xs mt-1">8 занятий</p>
             </div>
           </div>
-          <Button size="lg" className="bg-white text-brand-700 hover:bg-brand-50 shadow-md" asChild>
-            <Link href="/prices">Подробнее о ценах</Link>
-          </Button>
+          <div className="text-center">
+            <Button size="lg" variant="outline"
+              className="border-brand-300 text-brand-500 hover:bg-brand-50 rounded-2xl"
+              asChild>
+              <Link href="/prices">Подробнее о ценах</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 bg-white">
-        <div className="page-container text-center">
-          <h2 className="font-display text-3xl font-bold text-gray-900 mb-4">Готовы начать?</h2>
-          <p className="text-gray-500 mb-8 max-w-md mx-auto">
-            Зарегистрируйтесь, добавьте детей и запишитесь на первое занятие прямо сейчас.
-          </p>
-          <Button size="lg" className="bg-sun-400 hover:bg-sun-500 text-gray-900 font-semibold shadow-md" asChild>
-            <Link href="/register">Создать аккаунт</Link>
-          </Button>
+      {/* ── CTA ── */}
+      <section className="py-16 bg-brand-50">
+        <div className="page-container">
+          <div className="rounded-3xl bg-gradient-to-br from-brand-400 to-brand-500 p-10 sm:p-14 text-center relative overflow-hidden">
+            {/* Decorative */}
+            <svg className="absolute right-8 top-4 w-20 opacity-30" viewBox="0 0 120 120" fill="none">
+              {[0,45,90,135,180,225,270,315].map((deg) => (
+                <rect key={deg} x="54" y="4" width="12" height="24" rx="6" fill="#FFD93D"
+                  transform={`rotate(${deg} 60 60)`} />
+              ))}
+              <circle cx="60" cy="60" r="32" fill="#FFD93D" />
+            </svg>
+            <svg className="absolute -left-6 -bottom-6 w-32 opacity-20" viewBox="0 0 200 90" fill="white">
+              <circle cx="55"  cy="62" r="32" />
+              <circle cx="95"  cy="50" r="42" />
+              <circle cx="148" cy="60" r="30" />
+              <rect   x="23"   y="62" width="155" height="28" rx="8" />
+            </svg>
+
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-4 relative z-10">
+              Готовы начать?
+            </h2>
+            <p className="text-white/80 text-lg mb-8 max-w-md mx-auto relative z-10">
+              Зарегистрируйтесь и запишитесь на первое занятие прямо сейчас.
+            </p>
+            <Button size="lg"
+              className="bg-sun-400 hover:bg-sun-500 text-[#1F2937] font-semibold rounded-2xl shadow-lg px-10 relative z-10"
+              asChild>
+              <Link href="/register">Создать аккаунт</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </>
