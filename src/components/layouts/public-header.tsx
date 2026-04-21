@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, Palette } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -24,11 +25,8 @@ export function PublicHeader() {
       <div className="page-container">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-semibold text-brand-700">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
-              <Palette className="h-4 w-4 text-white" />
-            </div>
-            <span className="hidden sm:block">Кружок в небе</span>
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.png" alt="Кружок в небе" width={120} height={54} className="h-11 w-auto" />
           </Link>
 
           {/* Desktop nav */}
