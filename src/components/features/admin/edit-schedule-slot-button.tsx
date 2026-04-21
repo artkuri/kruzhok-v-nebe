@@ -37,7 +37,7 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
     durationMin: String(slot.durationMin),
     maxStudents: String(slot.maxStudents),
     isActive:    slot.isActive,
-    teacherId:   slot.teacherId ?? "",
+    teacherId:   slot.teacherId ?? "__none__",
   });
 
   function upd(field: keyof typeof form) {
@@ -62,7 +62,7 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
           durationMin: Number(form.durationMin),
           maxStudents: Number(form.maxStudents),
           isActive:    form.isActive,
-          teacherId:   form.teacherId || null,
+          teacherId:   form.teacherId === "__none__" ? null : form.teacherId || null,
           // Всегда используем часовой пояс студии (UTC+5, Екатеринбург)
           ...(timeChanged && {
             timezone: "Asia/Yekaterinburg",
@@ -119,7 +119,7 @@ export function EditScheduleSlotButton({ slot, teachers }: Props) {
               <Select value={form.teacherId} onValueChange={(v) => setForm(p => ({ ...p, teacherId: v }))}>
                 <SelectTrigger><SelectValue placeholder="Не назначен" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Не назначен</SelectItem>
+                  <SelectItem value="__none__">Не назначен</SelectItem>
                   {teachers.map(t => (
                     <SelectItem key={t.id} value={t.id}>{t.user.name}</SelectItem>
                   ))}

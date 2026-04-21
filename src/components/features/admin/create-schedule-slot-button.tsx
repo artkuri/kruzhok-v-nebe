@@ -31,7 +31,7 @@ export function CreateScheduleSlotButton({ directions, teachers }: Props) {
     startTime:   "10:00",
     durationMin: "60",
     maxStudents: "10",
-    teacherId:   "",
+    teacherId:   "__none__",
   });
 
   function upd(field: keyof typeof form) {
@@ -53,7 +53,7 @@ export function CreateScheduleSlotButton({ directions, teachers }: Props) {
           startTime:   form.startTime,
           durationMin: Number(form.durationMin),
           maxStudents: Number(form.maxStudents),
-          teacherId:   form.teacherId || null,
+          teacherId:   form.teacherId === "__none__" ? null : form.teacherId || null,
         }),
       });
       if (!res.ok) { const d = await res.json(); setError(d.error || "Ошибка"); return; }
@@ -111,7 +111,7 @@ export function CreateScheduleSlotButton({ directions, teachers }: Props) {
               <Select value={form.teacherId} onValueChange={(v) => setForm(p => ({ ...p, teacherId: v }))}>
                 <SelectTrigger><SelectValue placeholder="Не назначен" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Не назначен</SelectItem>
+                  <SelectItem value="__none__">Не назначен</SelectItem>
                   {teachers.map(t => (
                     <SelectItem key={t.id} value={t.id}>{t.user.name}</SelectItem>
                   ))}
