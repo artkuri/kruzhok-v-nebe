@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { startOfDay, endOfDay, addDays } from "date-fns";
+import { addDays } from "date-fns";
+import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
+import { STUDIO_TZ } from "@/lib/utils";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -10,14 +12,20 @@ export async function GET(req: NextRequest) {
   const teacherId = searchParams.get("teacherId");
   const directionId = searchParams.get("directionId");
 
+  const studioDay = (dateStr: string) =>
+    fromZonedTime(formatInTimeZone(new Date(dateStr), STUDIO_TZ, "yyyy-MM-dd") + "T00:00:00", STUDIO_TZ);
+  const studioEndDay = (dateStr: string) =>
+    fromZonedTime(formatInTimeZone(new Date(dateStr), STUDIO_TZ, "yyyy-MM-dd") + "T23:59:59.999", STUDIO_TZ);
+
+  const now = new Date();
   const where: any = {
     status: "SCHEDULED",
-    ...(from && { date: { gte: startOfDay(new Date(from)) } }),
-    ...(to && { date: { lte: endOfDay(new Date(to)) } }),
+    ...(from && { startTime: { gte: studioDay(from) } }),
+    ...(to   && { startTime: { lte: studioEndDay(to) } }),
     ...(!from && !to && {
-      date: {
-        gte: startOfDay(new Date()),
-        lte: endOfDay(addDays(new Date(), 30)),
+      startTime: {
+        gte: studioDay(now.toISOString()),
+        lte: studioEndDay(addDays(now, 30).toISOString()),
       },
     }),
     ...(teacherId && { teacherId }),
@@ -47,12 +55,12 @@ export async function POST(req: NextRequest) {
 
   // Skip if a non-cancelled session already exists for this slot+date (idempotent generation)
   if (body.scheduleSlotId && body.date) {
-    const dayStart = startOfDay(new Date(body.date));
-    const dayEnd   = endOfDay(new Date(body.date));
+    const dayStart = fromZonedTime(body.date + "T00:00:00", STUDIO_TZ);
+    const dayEnd   = fromZonedTime(body.date + "T23:59:59.999", STUDIO_TZ);
     const existing = await prisma.classSession.findFirst({
       where: {
         scheduleSlotId: body.scheduleSlotId,
-        date: { gte: dayStart, lte: dayEnd },
+        startTime: { gte: dayStart, lte: dayEnd },
         status: { not: "CANCELLED" },
       },
     });

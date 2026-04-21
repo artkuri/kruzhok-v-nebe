@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { startOfDay, endOfDay, addDays } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { addDays } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ru } from "date-fns/locale";
 import { STUDIO_TZ } from "@/lib/utils";
 import { formatTime, formatRub, canCancelBooking } from "@/lib/utils";
@@ -21,8 +21,8 @@ export default async function ClientSchedulePage() {
       where: {
         status: "SCHEDULED",
         startTime: {
-          gte: startOfDay(new Date()),
-          lte: endOfDay(addDays(new Date(), 28)),
+          gte: fromZonedTime(formatInTimeZone(new Date(), STUDIO_TZ, "yyyy-MM-dd") + "T00:00:00", STUDIO_TZ),
+          lte: fromZonedTime(formatInTimeZone(addDays(new Date(), 28), STUDIO_TZ, "yyyy-MM-dd") + "T23:59:59.999", STUDIO_TZ),
         },
       },
       include: {

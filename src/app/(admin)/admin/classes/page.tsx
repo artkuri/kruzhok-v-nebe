@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { startOfDay, addDays, endOfDay } from "date-fns";
-import { formatInTimeZone } from "date-fns-tz";
+import { addDays } from "date-fns";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ru } from "date-fns/locale";
 import { formatTime, STUDIO_TZ } from "@/lib/utils";
 import Link from "next/link";
@@ -10,12 +10,15 @@ import { Users, Clock } from "lucide-react";
 export const metadata = { title: "Занятия" };
 
 export default async function AdminClassesPage() {
+  const now = new Date();
+  const todayStr  = formatInTimeZone(now, STUDIO_TZ, "yyyy-MM-dd");
+  const endStr    = formatInTimeZone(addDays(now, 30), STUDIO_TZ, "yyyy-MM-dd");
+  const rangeStart = fromZonedTime(todayStr + "T00:00:00", STUDIO_TZ);
+  const rangeEnd   = fromZonedTime(endStr   + "T23:59:59.999", STUDIO_TZ);
+
   const sessions = await prisma.classSession.findMany({
     where: {
-      date: {
-        gte: startOfDay(new Date()),
-        lte: endOfDay(addDays(new Date(), 30)),
-      },
+      startTime: { gte: rangeStart, lte: rangeEnd },
     },
     include: {
       direction: true,
