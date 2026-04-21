@@ -64,7 +64,7 @@ export default function HomePage() {
         <div className="page-container text-center relative z-10">
           <div className="mx-auto max-w-3xl">
             <span className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-sm px-4 py-1.5 text-sm font-medium text-white mb-6 border border-white/30">
-              ✨ Студия творчества в вашем городе
+              ✨ Студия творчества в Шмидтово
             </span>
             <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6 leading-tight drop-shadow-sm">
               Кружок в небе —<br />
