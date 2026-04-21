@@ -24,9 +24,11 @@ export function PublicHeader() {
       <div className="page-container">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="Кружок в небе" className="h-11 w-auto" />
+          <Link href="/" className="flex items-center gap-2 font-display font-bold text-brand-600 text-lg">
+            <div className="h-8 w-8 rounded-full bg-sun-400 flex items-center justify-center flex-shrink-0">
+              <div className="h-4 w-4 rounded-full bg-brand-500" />
+            </div>
+            <span className="hidden sm:block">Кружок в небе</span>
           </Link>
 
           {/* Desktop nav */}

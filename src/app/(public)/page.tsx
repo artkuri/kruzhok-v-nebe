@@ -52,65 +52,67 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-white">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 right-0 w-[55%] h-full bg-brand-50 rounded-bl-[80px] hidden sm:block" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-brand-500 via-brand-500 to-brand-600 py-20 sm:py-28">
+        {/* Sun */}
+        <div className="absolute right-12 top-8 sm:right-24 sm:top-10">
+          <div className="relative h-28 w-28 sm:h-40 sm:w-40">
+            <div className="absolute inset-0 rounded-full bg-sun-400 shadow-xl shadow-sun-500/30" />
+            <div className="absolute inset-4 rounded-full bg-sun-300 opacity-50" />
+          </div>
+        </div>
 
-        {/* Decorative SVG elements */}
-        <svg className="absolute top-6 left-[42%] w-10 h-10 text-sun-400 hidden sm:block" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="8" fill="currentColor"/>
-          {[0,45,90,135,180,225,270,315].map((deg) => (
-            <line key={deg}
-              x1={20 + Math.cos(deg*Math.PI/180)*11}
-              y1={20 + Math.sin(deg*Math.PI/180)*11}
-              x2={20 + Math.cos(deg*Math.PI/180)*16}
-              y2={20 + Math.sin(deg*Math.PI/180)*16}
-              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-          ))}
-        </svg>
-        <svg className="absolute bottom-10 left-[38%] w-8 h-8 text-brand-300 hidden sm:block" viewBox="0 0 32 32" fill="currentColor">
-          <polygon points="16,2 19,12 30,12 21,19 24,30 16,23 8,30 11,19 2,12 13,12"/>
-        </svg>
-        <svg className="absolute top-16 right-8 w-10 h-10 text-sun-400 opacity-60 hidden sm:block" viewBox="0 0 40 40" fill="none">
-          <polygon points="20,3 23,14 34,14 25,21 28,32 20,25 12,32 15,21 6,14 17,14" fill="currentColor"/>
-        </svg>
+        {/* Cloud bottom-left */}
+        <div className="absolute -bottom-6 -left-10 opacity-20">
+          <svg viewBox="0 0 220 100" className="w-56 h-24" fill="white">
+            <ellipse cx="80" cy="70" rx="80" ry="40"/>
+            <ellipse cx="140" cy="65" rx="60" ry="35"/>
+            <ellipse cx="60" cy="60" rx="50" ry="30"/>
+            <ellipse cx="110" cy="55" rx="55" ry="32"/>
+          </svg>
+        </div>
+        {/* Cloud top-left */}
+        <div className="absolute -top-4 left-1/3 opacity-10">
+          <svg viewBox="0 0 180 80" className="w-44 h-20" fill="white">
+            <ellipse cx="70" cy="55" rx="70" ry="35"/>
+            <ellipse cx="120" cy="50" rx="50" ry="30"/>
+            <ellipse cx="50" cy="50" rx="45" ry="28"/>
+          </svg>
+        </div>
 
-        <div className="page-container relative z-10 py-12 sm:py-16">
-          <div className="grid sm:grid-cols-2 gap-8 items-center">
-            {/* Left: text */}
-            <div>
-              <div className="mb-6">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="Кружок в небе" className="h-20 w-auto" />
-              </div>
-              <h1 className="font-display text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-4">
-                Развитие<br />
-                и творчество<br />
-                <span className="text-brand-500">для вашего ребёнка</span>
-              </h1>
-              <p className="text-gray-500 text-lg mb-8 max-w-sm">
-                Ребёнок раскрывается, учится новому и становится увереннее уже за 1 месяц
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button size="lg" className="bg-sun-400 hover:bg-sun-500 text-gray-900 font-semibold shadow-md" asChild>
-                  <Link href="/register">Записаться на занятие</Link>
-                </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/schedule">Смотреть расписание</Link>
-                </Button>
-              </div>
-            </div>
-
-            {/* Right: photo */}
-            <div className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/hero.png"
-                alt="Девочка рисует акварелью"
-                className="w-full h-auto rounded-3xl"
-              />
+        <div className="page-container relative z-10 text-center">
+          {/* Logo mark */}
+          <div className="flex justify-center mb-8">
+            <div className="relative inline-flex items-center gap-3 bg-white/15 backdrop-blur-sm border border-white/30 rounded-3xl px-6 py-3">
+              {/* Mini sun */}
+              <div className="h-8 w-8 rounded-full bg-sun-400 flex-shrink-0" />
+              <span className="font-display text-white font-bold text-xl tracking-wide">Кружок в небе</span>
             </div>
           </div>
+
+          <h1 className="font-display text-4xl sm:text-6xl font-bold text-white leading-tight mb-5 drop-shadow-sm">
+            Развитие<br />
+            <span className="text-sun-300">и творчество</span><br />
+            для вашего ребёнка
+          </h1>
+          <p className="text-brand-100 text-lg sm:text-xl mb-10 max-w-lg mx-auto">
+            Рисование, арт-терапия, рукоделие и керамика.<br />
+            Малые группы, опытные педагоги, Шмидтово.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button size="lg" className="bg-sun-400 hover:bg-sun-500 text-gray-900 font-semibold shadow-lg text-base" asChild>
+              <Link href="/register">Записаться на занятие</Link>
+            </Button>
+            <Button size="lg" className="bg-white/15 border border-white/40 text-white hover:bg-white/25 backdrop-blur-sm text-base" asChild>
+              <Link href="/schedule">Смотреть расписание</Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Wave */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 60" className="w-full" preserveAspectRatio="none" fill="white">
+            <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" />
+          </svg>
         </div>
       </section>
 
