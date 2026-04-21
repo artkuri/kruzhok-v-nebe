@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Palette, Heart, Scissors, Layers, Users, Clock, MapPin, Star } from "lucide-react";
+import { Users, Clock, MapPin } from "lucide-react";
+import {
+  IconPalette, IconHeart, IconPeople, IconTrophy, IconBrain, IconAirplane,
+  StarFilled, StarOutline, Cloud, Sun, PaperPlane, DotTrail, BrandPattern,
+} from "@/components/ui/brand-icons";
 
 export const metadata = {
   title: "Студия творчества для детей и взрослых",
@@ -8,48 +12,47 @@ export const metadata = {
 
 const DIRECTIONS = [
   {
-    icon: Palette,
+    Icon: IconPalette,
     name: "Рисование",
     desc: "Живопись, акварель, графика — от азов до своего стиля",
     bg: "bg-amber-50",
-    icon_color: "text-amber-500",
   },
   {
-    icon: Heart,
+    Icon: IconBrain,
     name: "Арт-терапия",
     desc: "Творческие занятия для эмоционального развития детей",
     bg: "bg-[#EDE9FE]",
-    icon_color: "text-[#A78BFA]",
   },
   {
-    icon: Scissors,
+    Icon: IconHeart,
     name: "Рукоделие",
     desc: "Вышивка, вязание, декупаж, скрапбукинг",
     bg: "bg-rose-50",
-    icon_color: "text-rose-400",
   },
   {
-    icon: Layers,
+    Icon: IconTrophy,
     name: "Керамика",
     desc: "Лепка из глины, гончарный круг, роспись",
     bg: "bg-brand-50",
-    icon_color: "text-brand-400",
   },
 ];
 
 const FEATURES = [
-  { icon: Users,  label: "Малые группы",    desc: "До 10 человек" },
-  { icon: Star,   label: "Опытные педагоги", desc: "Профессионалы своего дела" },
-  { icon: Clock,  label: "Удобное время",   desc: "Вечера и выходные" },
-  { icon: MapPin, label: "Шмидтово",        desc: "Удобная локация" },
+  { Icon: IconPeople,   label: "Малые группы",     desc: "До 10 человек" },
+  { Icon: IconAirplane, label: "Опытные педагоги",  desc: "Профессионалы своего дела" },
+  { Icon: IconBrain,    label: "Удобное время",    desc: "Вечера и выходные" },
+  { Icon: IconTrophy,   label: "Шмидтово",         desc: "Удобная локация" },
 ];
 
 export default function HomePage() {
   return (
     <>
       {/* ── Hero ── */}
-      <section className="bg-brand-50 py-14 sm:py-20 overflow-hidden">
-        <div className="page-container">
+      <section className="bg-brand-50 py-14 sm:py-20 overflow-hidden relative">
+        {/* Background pattern */}
+        <BrandPattern className="absolute inset-0 w-full h-full pointer-events-none" />
+
+        <div className="page-container relative z-10">
           <div className="grid sm:grid-cols-2 gap-10 items-center">
 
             {/* Left — text */}
@@ -165,11 +168,11 @@ export default function HomePage() {
         <div className="page-container">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
             {FEATURES.map((f) => {
-              const Icon = f.icon;
+              const Icon = f.Icon;
               return (
                 <div key={f.label} className="text-center">
                   <div className="mx-auto mb-3 h-12 w-12 rounded-2xl bg-brand-50 flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-brand-400" />
+                    <Icon className="h-7 w-7" />
                   </div>
                   <p className="text-sm font-semibold text-[#1F2937]">{f.label}</p>
                   <p className="text-xs text-gray-400 mt-0.5">{f.desc}</p>
@@ -191,12 +194,12 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {DIRECTIONS.map((d) => {
-              const Icon = d.icon;
+              const Icon = d.Icon;
               return (
                 <Link key={d.name} href="/directions"
                   className="group rounded-2xl bg-white p-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
                   <div className={`mb-4 h-12 w-12 rounded-xl flex items-center justify-center ${d.bg}`}>
-                    <Icon className={`h-6 w-6 ${d.icon_color}`} />
+                    <Icon className="h-8 w-8" />
                   </div>
                   <h3 className="font-semibold text-[#1F2937] mb-2 group-hover:text-brand-400 transition-colors">
                     {d.name}

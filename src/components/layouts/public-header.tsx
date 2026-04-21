@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { LogoMark } from "@/components/ui/logo";
 
 const NAV_LINKS = [
   { href: "/about", label: "О студии" },
@@ -25,14 +26,10 @@ export function PublicHeader() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            {/* Cloud + sun logo mark */}
-            <div className="relative h-9 w-9 flex-shrink-0">
-              <div className="absolute inset-0 rounded-2xl bg-brand-400" />
-              <div className="absolute right-0.5 top-0.5 h-3.5 w-3.5 rounded-full bg-sun-400" />
-            </div>
-            <div className="hidden sm:block leading-tight">
-              <span className="font-display font-bold text-brand-400 text-base">Кружок</span>
-              <span className="font-display font-bold text-sun-400 text-base"> в небе</span>
+            <LogoMark className="h-9 w-9 flex-shrink-0" />
+            <div className="hidden sm:block leading-none">
+              <span className="font-display font-bold text-brand-400 text-[15px]">Кружок</span>
+              <span className="font-display font-bold text-sun-400 text-[15px]"> в небе</span>
             </div>
           </Link>
 
