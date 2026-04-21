@@ -52,41 +52,77 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-500 via-brand-500 to-brand-600 py-20 sm:py-28">
-        {/* Sun */}
-        <div className="absolute right-12 top-8 sm:right-24 sm:top-10">
-          <div className="relative h-28 w-28 sm:h-40 sm:w-40">
-            <div className="absolute inset-0 rounded-full bg-sun-400 shadow-xl shadow-sun-500/30" />
-            <div className="absolute inset-4 rounded-full bg-sun-300 opacity-50" />
-          </div>
-        </div>
+      <section className="relative overflow-hidden bg-gradient-to-b from-brand-400 to-brand-600 py-20 sm:py-28">
 
-        {/* Cloud bottom-left */}
-        <div className="absolute -bottom-6 -left-10 opacity-20">
-          <svg viewBox="0 0 220 100" className="w-56 h-24" fill="white">
-            <ellipse cx="80" cy="70" rx="80" ry="40"/>
-            <ellipse cx="140" cy="65" rx="60" ry="35"/>
-            <ellipse cx="60" cy="60" rx="50" ry="30"/>
-            <ellipse cx="110" cy="55" rx="55" ry="32"/>
-          </svg>
-        </div>
-        {/* Cloud top-left */}
-        <div className="absolute -top-4 left-1/3 opacity-10">
-          <svg viewBox="0 0 180 80" className="w-44 h-20" fill="white">
-            <ellipse cx="70" cy="55" rx="70" ry="35"/>
-            <ellipse cx="120" cy="50" rx="50" ry="30"/>
-            <ellipse cx="50" cy="50" rx="45" ry="28"/>
-          </svg>
-        </div>
+        {/* === Illustrations === */}
 
+        {/* Sun — top right */}
+        <svg className="absolute -top-6 right-6 sm:right-16 w-36 sm:w-52 opacity-95" viewBox="0 0 120 120" fill="none">
+          {[0,45,90,135,180,225,270,315].map((deg, i) => (
+            <rect key={i} x="54" y="4" width="12" height="24" rx="6" fill="#FFD93D"
+              transform={`rotate(${deg} 60 60)`} />
+          ))}
+          <circle cx="60" cy="60" r="32" fill="#FFD93D" />
+          <circle cx="60" cy="60" r="25" fill="#FFE680" opacity="0.55" />
+        </svg>
+
+        {/* Cloud — top left */}
+        <svg className="absolute -top-2 -left-8 w-52 sm:w-72 opacity-75" viewBox="0 0 200 90" fill="white">
+          <circle cx="55"  cy="62" r="32" />
+          <circle cx="95"  cy="50" r="42" />
+          <circle cx="148" cy="60" r="30" />
+          <rect   x="23"   y="60" width="155" height="30" rx="8" />
+        </svg>
+
+        {/* Cloud — bottom left */}
+        <svg className="absolute -bottom-4 -left-4 w-64 sm:w-96 opacity-60" viewBox="0 0 260 100" fill="white">
+          <circle cx="65"  cy="68" r="38" />
+          <circle cx="115" cy="55" r="50" />
+          <circle cx="178" cy="65" r="36" />
+          <circle cx="230" cy="70" r="28" />
+          <rect   x="27"   y="68" width="231" height="32" rx="8" />
+        </svg>
+
+        {/* Cloud — right mid */}
+        <svg className="absolute top-1/2 -right-4 w-40 sm:w-56 opacity-50" viewBox="0 0 180 80" fill="white">
+          <circle cx="45"  cy="52" r="28" />
+          <circle cx="85"  cy="42" r="36" />
+          <circle cx="136" cy="55" r="24" />
+          <rect   x="17"   y="52" width="143" height="28" rx="8" />
+        </svg>
+
+        {/* Paper airplane */}
+        <svg className="absolute top-1/4 left-[18%] sm:left-[28%] w-16 sm:w-24 opacity-90 drop-shadow-sm" viewBox="0 0 90 56" fill="none">
+          {/* Body */}
+          <polygon points="0,28 90,4 72,52" fill="white" />
+          {/* Inner fold shadow */}
+          <polygon points="0,28 72,52 36,34" fill="rgba(0,130,160,0.2)" />
+          {/* Tail */}
+          <polygon points="36,34 72,52 46,60" fill="white" opacity="0.7" />
+          {/* Crease line */}
+          <line x1="0" y1="28" x2="72" y2="52" stroke="rgba(0,130,160,0.3)" strokeWidth="1" />
+        </svg>
+
+        {/* Sparkle — top left */}
+        <svg className="absolute top-10 left-10 w-7 opacity-80" viewBox="0 0 40 40">
+          <polygon points="20,1 23,17 39,20 23,23 20,39 17,23 1,20 17,17" fill="#FFE680" />
+        </svg>
+        {/* Sparkle — bottom right */}
+        <svg className="absolute bottom-16 right-16 sm:right-32 w-5 opacity-60" viewBox="0 0 40 40">
+          <polygon points="20,1 23,17 39,20 23,23 20,39 17,23 1,20 17,17" fill="white" />
+        </svg>
+        {/* Sparkle — mid right */}
+        <svg className="absolute top-1/3 right-28 sm:right-56 w-4 opacity-50" viewBox="0 0 40 40">
+          <polygon points="20,1 23,17 39,20 23,23 20,39 17,23 1,20 17,17" fill="#FFE680" />
+        </svg>
+
+        {/* === Content === */}
         <div className="page-container relative z-10 text-center">
-          {/* Logo mark */}
-          <div className="flex justify-center mb-8">
-            <div className="relative inline-flex items-center gap-3 bg-white/15 backdrop-blur-sm border border-white/30 rounded-3xl px-6 py-3">
-              {/* Mini sun */}
-              <div className="h-8 w-8 rounded-full bg-sun-400 flex-shrink-0" />
-              <span className="font-display text-white font-bold text-xl tracking-wide">Кружок в небе</span>
-            </div>
+          <div className="inline-flex items-center gap-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-5 py-2 mb-8">
+            <svg viewBox="0 0 20 20" className="w-4 h-4 flex-shrink-0" fill="#FFD93D">
+              <polygon points="10,1 12,8 19,8 13,12 15,19 10,15 5,19 7,12 1,8 8,8" />
+            </svg>
+            <span className="font-display text-white font-semibold text-sm tracking-wide">Студия творчества в Шмидтово</span>
           </div>
 
           <h1 className="font-display text-4xl sm:text-6xl font-bold text-white leading-tight mb-5 drop-shadow-sm">
@@ -94,9 +130,9 @@ export default function HomePage() {
             <span className="text-sun-300">и творчество</span><br />
             для вашего ребёнка
           </h1>
-          <p className="text-brand-100 text-lg sm:text-xl mb-10 max-w-lg mx-auto">
+          <p className="text-white/80 text-lg sm:text-xl mb-10 max-w-lg mx-auto">
             Рисование, арт-терапия, рукоделие и керамика.<br />
-            Малые группы, опытные педагоги, Шмидтово.
+            Малые группы и опытные педагоги.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button size="lg" className="bg-sun-400 hover:bg-sun-500 text-gray-900 font-semibold shadow-lg text-base" asChild>
@@ -108,10 +144,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Wave */}
+        {/* Wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" className="w-full" preserveAspectRatio="none" fill="white">
-            <path d="M0,30 C360,60 1080,0 1440,30 L1440,60 L0,60 Z" />
+          <svg viewBox="0 0 1440 64" className="w-full" preserveAspectRatio="none" fill="white">
+            <path d="M0,32 C240,64 480,0 720,32 C960,64 1200,0 1440,32 L1440,64 L0,64 Z" />
           </svg>
         </div>
       </section>
