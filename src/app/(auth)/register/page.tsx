@@ -18,6 +18,7 @@ export default function RegisterPage() {
     confirm: "",
     familyName: "",
   });
+  const [consent, setConsent] = useState({ policy: false, parent: false });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -144,14 +145,55 @@ export default function RegisterPage() {
               required
               autoComplete="new-password"
             />
+            {/* Consent checkboxes */}
+            <div className="space-y-2.5 pt-1">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consent.policy}
+                  onChange={e => setConsent(p => ({ ...p, policy: e.target.checked }))}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  required
+                />
+                <span className="text-sm text-gray-600">
+                  Согласен с{" "}
+                  <a href="/privacy" target="_blank" className="text-brand-600 hover:underline">политикой конфиденциальности</a>
+                  {" "}и{" "}
+                  <a href="/offer" target="_blank" className="text-brand-600 hover:underline">публичной офертой</a>
+                </span>
+              </label>
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consent.parent}
+                  onChange={e => setConsent(p => ({ ...p, parent: e.target.checked }))}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+                  required
+                />
+                <span className="text-sm text-gray-600">
+                  Я родитель (законный представитель) и даю{" "}
+                  <a href="/consent" target="_blank" className="text-brand-600 hover:underline">согласие на обработку данных ребёнка</a>
+                </span>
+              </label>
+            </div>
+
             {error && (
               <div className="rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
                 {error}
               </div>
             )}
-            <Button type="submit" className="w-full" loading={loading}>
+            <Button
+              type="submit"
+              className="w-full"
+              loading={loading}
+              disabled={!consent.policy || !consent.parent}
+            >
               Зарегистрироваться
             </Button>
+            <p className="text-center text-xs text-gray-400">
+              Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности и даёте согласие
+              на обработку персональных данных, включая данные ребёнка
+            </p>
           </form>
         </div>
 
