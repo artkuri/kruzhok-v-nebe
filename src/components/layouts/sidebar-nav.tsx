@@ -16,9 +16,10 @@ interface NavItem {
 interface SidebarNavProps {
   items: NavItem[];
   collapsed?: boolean;
+  onNavigate?: () => void;
 }
 
-export function SidebarNav({ items, collapsed = false }: SidebarNavProps) {
+export function SidebarNav({ items, collapsed = false, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
@@ -31,6 +32,7 @@ export function SidebarNav({ items, collapsed = false }: SidebarNavProps) {
           <Link
             key={item.href}
             href={item.href}
+            onClick={onNavigate}
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
               isActive

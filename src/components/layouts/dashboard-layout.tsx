@@ -101,7 +101,7 @@ export function DashboardLayout({ children, userRole, userName }: DashboardLayou
 
         {/* Nav */}
         <div className="flex-1 overflow-y-auto p-3">
-          <SidebarNav items={navItems} />
+          <SidebarNav items={navItems} onNavigate={() => setSidebarOpen(false)} />
         </div>
 
         {/* User footer */}
