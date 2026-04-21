@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Palette, Heart, Scissors, Layers, Star, Users, Clock, MapPin } from "lucide-react";
 
@@ -81,7 +80,8 @@ export default function HomePage() {
             {/* Left: text */}
             <div>
               <div className="mb-6">
-                <Image src="/logo.png" alt="Кружок в небе" width={200} height={90} className="h-20 w-auto" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="Кружок в небе" className="h-20 w-auto" />
               </div>
               <h1 className="font-display text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-4">
                 Развитие<br />
@@ -103,13 +103,11 @@ export default function HomePage() {
 
             {/* Right: photo */}
             <div className="relative">
-              <Image
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src="/hero.png"
                 alt="Девочка рисует акварелью"
-                width={600}
-                height={420}
                 className="w-full h-auto rounded-3xl"
-                priority
               />
             </div>
           </div>

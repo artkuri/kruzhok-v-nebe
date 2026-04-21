@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,7 +25,8 @@ export function PublicHeader() {
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="Кружок в небе" width={120} height={54} className="h-11 w-auto" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="Кружок в небе" className="h-11 w-auto" />
           </Link>
 
           {/* Desktop nav */}
