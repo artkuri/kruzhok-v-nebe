@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Clock, Users } from "lucide-react";
 
 export const metadata = { title: "Расписание" };
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export default async function SchedulePage() {
   const now = new Date();
