@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { addDays } from "date-fns";
+import { addDays, subDays } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ru } from "date-fns/locale";
 import { formatTime, STUDIO_TZ } from "@/lib/utils";
@@ -9,23 +9,45 @@ import { Users, Clock } from "lucide-react";
 
 export const metadata = { title: "Занятия" };
 
-export default async function AdminClassesPage() {
+function statusBadge(status: string) {
+  if (status === "CANCELLED")   return <Badge variant="destructive">Отменено</Badge>;
+  if (status === "COMPLETED")   return <Badge variant="secondary">Завершено</Badge>;
+  if (status === "IN_PROGRESS") return <Badge variant="warning">Идёт</Badge>;
+  return <Badge variant="success">Запланировано</Badge>;
+}
+
+export default async function AdminClassesPage({
+  searchParams,
+}: {
+  searchParams: { tab?: string };
+}) {
+  const isPast = searchParams.tab === "past";
   const now = new Date();
-  const todayStr  = formatInTimeZone(now, STUDIO_TZ, "yyyy-MM-dd");
-  const endStr    = formatInTimeZone(addDays(now, 30), STUDIO_TZ, "yyyy-MM-dd");
-  const rangeStart = fromZonedTime(todayStr + "T00:00:00", STUDIO_TZ);
-  const rangeEnd   = fromZonedTime(endStr   + "T23:59:59.999", STUDIO_TZ);
+  const todayStr = formatInTimeZone(now, STUDIO_TZ, "yyyy-MM-dd");
+
+  let rangeStart: Date;
+  let rangeEnd: Date;
+
+  if (isPast) {
+    // Last 90 days
+    const pastStr = formatInTimeZone(subDays(now, 90), STUDIO_TZ, "yyyy-MM-dd");
+    rangeStart = fromZonedTime(pastStr   + "T00:00:00",     STUDIO_TZ);
+    rangeEnd   = fromZonedTime(todayStr  + "T00:00:00",     STUDIO_TZ);
+  } else {
+    // Next 30 days
+    const endStr = formatInTimeZone(addDays(now, 30), STUDIO_TZ, "yyyy-MM-dd");
+    rangeStart = fromZonedTime(todayStr + "T00:00:00",     STUDIO_TZ);
+    rangeEnd   = fromZonedTime(endStr   + "T23:59:59.999", STUDIO_TZ);
+  }
 
   const sessions = await prisma.classSession.findMany({
-    where: {
-      startTime: { gte: rangeStart, lte: rangeEnd },
-    },
+    where: { startTime: { gte: rangeStart, lte: rangeEnd } },
     include: {
       direction: true,
       teacher: { include: { user: true } },
       _count: { select: { bookings: { where: { status: { notIn: ["CANCELLED"] } } } } },
     },
-    orderBy: { startTime: "asc" },
+    orderBy: { startTime: isPast ? "desc" : "asc" },
   });
 
   const byDate = sessions.reduce<Record<string, typeof sessions>>((acc, s) => {
@@ -35,14 +57,7 @@ export default async function AdminClassesPage() {
     return acc;
   }, {});
 
-  const dates = Object.keys(byDate).sort();
-
-  const statusBadge = (s: { status: string }) => {
-    if (s.status === "CANCELLED")   return <Badge variant="destructive">Отменено</Badge>;
-    if (s.status === "COMPLETED")   return <Badge variant="secondary">Завершено</Badge>;
-    if (s.status === "IN_PROGRESS") return <Badge variant="warning">Идёт</Badge>;
-    return <Badge variant="success">Запланировано</Badge>;
-  };
+  const dates = Object.keys(byDate).sort(isPast ? (a, b) => b.localeCompare(a) : undefined);
 
   return (
     <div className="space-y-6">
@@ -50,9 +65,37 @@ export default async function AdminClassesPage() {
         <h1 className="text-2xl font-bold text-gray-900">Занятия</h1>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 w-fit">
+        <Link
+          href="/admin/classes"
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            !isPast
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Предстоящие
+        </Link>
+        <Link
+          href="/admin/classes?tab=past"
+          className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            isPast
+              ? "bg-white text-gray-900 shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          Прошедшие
+        </Link>
+      </div>
+
+      {/* Sessions */}
       <div className="space-y-6">
+        {dates.length === 0 && (
+          <p className="text-center py-16 text-gray-400">Занятий нет</p>
+        )}
         {dates.map((dateKey) => {
-          const dateObj = new Date(dateKey + "T00:00:00Z");
+          const dateObj = new Date(dateKey + "T12:00:00Z");
           return (
             <div key={dateKey}>
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 capitalize">
@@ -75,7 +118,7 @@ export default async function AdminClassesPage() {
                       >
                         {s.direction.name}
                       </div>
-                      {statusBadge(s)}
+                      {statusBadge(s.status)}
                     </div>
 
                     <div className="flex items-center gap-1.5 text-sm text-gray-700 mb-1">
