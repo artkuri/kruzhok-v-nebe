@@ -32,8 +32,15 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = await req.json();
-  const data = updateSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
+  const parsed = updateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Неверные данные" }, { status: 400 });
+  }
+  const data = parsed.data;
 
   const settings = await prisma.studioSettings.upsert({
     where: { id: "singleton" },

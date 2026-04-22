@@ -19,8 +19,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const family = await prisma.family.findUnique({ where: { id: familyId } });
   if (!family) return NextResponse.json({ error: "Family not found" }, { status: 404 });
 
-  const body = await req.json();
-  const data = schema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Неверные данные" }, { status: 400 });
+  }
+  const data = parsed.data;
 
   const child = await prisma.child.create({
     data: {

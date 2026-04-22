@@ -27,6 +27,9 @@ export default auth((req) => {
     pathname.startsWith("/contacts") ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/offer") ||
+    pathname.startsWith("/consent") ||
     pathname.startsWith("/api/auth") ||
     pathname === "/api/users/register"
   ) {

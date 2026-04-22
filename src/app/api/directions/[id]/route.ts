@@ -19,8 +19,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const { id } = await params;
-  const body = await req.json();
-  const data = updateSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
+  const parsed = updateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Неверные данные" }, { status: 400 });
+  }
+  const data = parsed.data;
 
   const direction = await prisma.direction.update({
     where: { id },

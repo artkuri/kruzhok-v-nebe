@@ -11,7 +11,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = await req.json();
+  let body: any;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
   const { bookingId, attended, notes, deductFromSubscription } = body;
 
   const booking = await prisma.booking.findUnique({

@@ -33,8 +33,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Семья не найдена" }, { status: 400 });
   }
 
-  const body = await req.json();
-  const data = childSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
+  const parsed = childSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Неверные данные" }, { status: 400 });
+  }
+  const data = parsed.data;
 
   const child = await prisma.child.create({
     data: {

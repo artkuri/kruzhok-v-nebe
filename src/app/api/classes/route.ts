@@ -51,7 +51,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const body = await req.json();
+  let body: any;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
 
   // Skip if a non-cancelled session already exists for this slot+date (idempotent generation)
   if (body.scheduleSlotId && body.date) {

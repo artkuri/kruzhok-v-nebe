@@ -157,9 +157,9 @@ export default function RegisterPage() {
                 />
                 <span className="text-sm text-gray-600">
                   Согласен с{" "}
-                  <a href="/privacy" target="_blank" className="text-brand-600 hover:underline">политикой конфиденциальности</a>
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">политикой конфиденциальности</a>
                   {" "}и{" "}
-                  <a href="/offer" target="_blank" className="text-brand-600 hover:underline">публичной офертой</a>
+                  <a href="/offer" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">публичной офертой</a>
                 </span>
               </label>
               <label className="flex items-start gap-3 cursor-pointer">
@@ -172,7 +172,7 @@ export default function RegisterPage() {
                 />
                 <span className="text-sm text-gray-600">
                   Я родитель (законный представитель) и даю{" "}
-                  <a href="/consent" target="_blank" className="text-brand-600 hover:underline">согласие на обработку данных ребёнка</a>
+                  <a href="/consent" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline">согласие на обработку данных ребёнка</a>
                 </span>
               </label>
             </div>

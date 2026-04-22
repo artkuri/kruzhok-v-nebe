@@ -61,8 +61,14 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await req.json();
-  const data = createSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
+  let data: z.infer<typeof createSchema>;
+  try { data = createSchema.parse(body); } catch {
+    return NextResponse.json({ error: "Не заполнены обязательные поля" }, { status: 400 });
+  }
   const role = (session.user as any).role;
   const userId = (session.user as any).id;
 
@@ -124,15 +130,16 @@ export async function POST(req: NextRequest) {
 
     // Auto-create payment for individual lessons
     if (classSession!.direction.type === "INDIVIDUAL") {
-      const price = classSession!.direction.priceRub ?? 1000;
-      await tx.payment.create({
-        data: {
-          bookingId: bk.id,
-          amountRub: price,
-          method: "ON_SITE",
-          isPaid: false,
-        },
-      });
+      if (price != null) {
+        await tx.payment.create({
+          data: {
+            bookingId: bk.id,
+            amountRub: price,
+            method: "ON_SITE",
+            isPaid: false,
+          },
+        });
+      }
     } else if (data.subscriptionId) {
       // Link subscription for group classes
       const sub = await tx.subscription.findUnique({ where: { id: data.subscriptionId } });

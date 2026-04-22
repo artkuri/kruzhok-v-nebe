@@ -17,8 +17,15 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 
   const { id } = await params;
-  const body = await req.json();
-  const data = updateSchema.parse(body);
+  let body: unknown;
+  try { body = await req.json(); } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
+  const parsed = updateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Неверные данные" }, { status: 400 });
+  }
+  const data = parsed.data;
 
   const teacher = await prisma.teacher.findUnique({ where: { id } });
   if (!teacher) return NextResponse.json({ error: "Педагог не найден" }, { status: 404 });

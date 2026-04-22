@@ -8,7 +8,14 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { from, to } = await req.json();
+  let from: string, to: string;
+  try {
+    const body = await req.json();
+    from = body.from;
+    to = body.to;
+  } catch {
+    return NextResponse.json({ error: "Неверный формат запроса" }, { status: 400 });
+  }
   if (!from || !to) {
     return NextResponse.json({ error: "from и to обязательны" }, { status: 400 });
   }
