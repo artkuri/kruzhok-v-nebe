@@ -11,7 +11,7 @@ import { DeleteSessionsButton } from "@/components/features/admin/delete-session
 export const metadata = { title: "Расписание" };
 
 export default async function AdminSchedulePage() {
-  const [slots, teachers] = await Promise.all([
+  const [slots, teachers, directions] = await Promise.all([
     prisma.scheduleSlot.findMany({
       include: {
         direction: true,
@@ -22,6 +22,10 @@ export default async function AdminSchedulePage() {
     prisma.teacher.findMany({
       where: { isActive: true },
       include: { user: true },
+    }),
+    prisma.direction.findMany({
+      where: { isActive: true },
+      orderBy: { name: "asc" },
     }),
   ]);
 
@@ -44,10 +48,7 @@ export default async function AdminSchedulePage() {
     teacherId:   s.teacherId,
   }));
 
-  const directionData = slots
-    .map(s => s.direction)
-    .filter((d, i, arr) => arr.findIndex(x => x.id === d.id) === i)
-    .map(d => ({ id: d.id, name: d.name, color: d.color }));
+  const directionData = directions.map(d => ({ id: d.id, name: d.name, color: d.color }));
 
   const teacherData = teachers.map(t => ({ id: t.id, user: { name: t.user.name } }));
 
