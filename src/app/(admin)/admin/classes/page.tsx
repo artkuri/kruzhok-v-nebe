@@ -35,11 +35,10 @@ export default async function AdminClassesPage({
     rangeStart = fromZonedTime(pastStr  + "T00:00:00",     STUDIO_TZ);
     rangeEnd   = fromZonedTime(todayStr + "T00:00:00",     STUDIO_TZ);
   } else {
-    // Last 7 days + next 30 days
-    const weekAgoStr = formatInTimeZone(subDays(now, 7), STUDIO_TZ, "yyyy-MM-dd");
-    const endStr     = formatInTimeZone(addDays(now, 30), STUDIO_TZ, "yyyy-MM-dd");
-    rangeStart = fromZonedTime(weekAgoStr + "T00:00:00",     STUDIO_TZ);
-    rangeEnd   = fromZonedTime(endStr     + "T23:59:59.999", STUDIO_TZ);
+    // From today + next 30 days
+    const endStr = formatInTimeZone(addDays(now, 30), STUDIO_TZ, "yyyy-MM-dd");
+    rangeStart = fromZonedTime(todayStr + "T00:00:00",     STUDIO_TZ);
+    rangeEnd   = fromZonedTime(endStr   + "T23:59:59.999", STUDIO_TZ);
   }
 
   const sessions = await prisma.classSession.findMany({
