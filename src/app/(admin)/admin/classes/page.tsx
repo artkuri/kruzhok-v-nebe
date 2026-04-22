@@ -19,9 +19,10 @@ function statusBadge(status: string) {
 export default async function AdminClassesPage({
   searchParams,
 }: {
-  searchParams: { tab?: string };
+  searchParams: Promise<{ tab?: string }>;
 }) {
-  const isPast = searchParams.tab === "past";
+  const { tab } = await searchParams;
+  const isPast = tab === "past";
   const now = new Date();
   const todayStr = formatInTimeZone(now, STUDIO_TZ, "yyyy-MM-dd");
 
