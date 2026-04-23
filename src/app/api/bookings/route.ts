@@ -130,6 +130,7 @@ export async function POST(req: NextRequest) {
 
     // Auto-create payment for individual lessons
     if (classSession!.direction.type === "INDIVIDUAL") {
+      const price = classSession!.direction.priceRub;
       if (price != null) {
         await tx.payment.create({
           data: {
