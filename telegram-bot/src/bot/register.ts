@@ -15,6 +15,7 @@ import { createScheduleHandler } from "./handlers/schedule.handler";
 import { startHandler } from "./handlers/start.handler";
 import { createSubscriptionHandler } from "./handlers/subscription.handler";
 import { createAuthMiddleware } from "./middleware/auth";
+import { PostgresSessionStore } from "./session-store";
 
 type Services = {
   authService: AuthService;
@@ -25,7 +26,21 @@ type Services = {
 };
 
 export function registerBot(bot: Telegraf<BotContext>, services: Services) {
-  bot.use(session({ defaultSession }));
+  const sessionStore = new PostgresSessionStore();
+
+  bot.use(
+    session({
+      defaultSession,
+      store: sessionStore,
+      getSessionKey: (ctx) => {
+        if (!ctx.from || !ctx.chat) {
+          return undefined;
+        }
+
+        return `chat:${ctx.chat.id}:user:${ctx.from.id}`;
+      },
+    }),
+  );
 
   bot.use(async (ctx, next) => {
     try {

@@ -17,4 +17,5 @@ export const env = {
   databaseUrl: required("DATABASE_URL"),
   authMockCode: process.env.BOT_AUTH_MOCK_CODE ?? "1234",
   timezone: process.env.BOT_TIMEZONE ?? "Asia/Yekaterinburg",
+  webhookSecret: process.env.BOT_WEBHOOK_SECRET ?? "",
 };
