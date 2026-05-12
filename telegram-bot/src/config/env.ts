@@ -12,10 +12,22 @@ function required(name: string): string {
 }
 
 export const env = {
-  botToken: required("BOT_TOKEN"),
-  botName: process.env.BOT_NAME ?? "@kruzhok_v_nebe_bot",
-  databaseUrl: required("DATABASE_URL"),
-  authMockCode: process.env.BOT_AUTH_MOCK_CODE ?? "1234",
-  timezone: process.env.BOT_TIMEZONE ?? "Asia/Yekaterinburg",
-  webhookSecret: process.env.BOT_WEBHOOK_SECRET ?? "",
+  get botToken() {
+    return required("BOT_TOKEN");
+  },
+  get botName() {
+    return process.env.BOT_NAME ?? "@kruzhok_v_nebe_bot";
+  },
+  get databaseUrl() {
+    return required("DATABASE_URL");
+  },
+  get authMockCode() {
+    return process.env.BOT_AUTH_MOCK_CODE ?? "1234";
+  },
+  get timezone() {
+    return process.env.BOT_TIMEZONE ?? "Asia/Yekaterinburg";
+  },
+  get webhookSecret() {
+    return process.env.BOT_WEBHOOK_SECRET ?? "";
+  },
 };
