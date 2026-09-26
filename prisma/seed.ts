@@ -4,6 +4,16 @@ import { addYears, setDay, setHours, setMinutes, startOfDay, addDays, addWeeks }
 
 const prisma = new PrismaClient();
 
+// Пароли тестовых учёток НЕ хранятся в коде: берутся из переменных окружения
+// SEED_ADMIN_PASSWORD / SEED_TEACHER_PASSWORD / SEED_CLIENT_PASSWORD или генерируются
+// случайно и печатаются один раз при заполнении базы.
+function seedPassword(envName: string): string {
+  return process.env[envName] || require("crypto").randomBytes(12).toString("base64url");
+}
+const ADMIN_PASSWORD = seedPassword("SEED_ADMIN_PASSWORD");
+const TEACHER_PASSWORD = seedPassword("SEED_TEACHER_PASSWORD");
+const CLIENT_PASSWORD = seedPassword("SEED_CLIENT_PASSWORD");
+
 async function main() {
   console.log("🌱 Seeding database...");
 
@@ -88,7 +98,7 @@ async function main() {
   });
 
   // ─── Admin user ────────────────────────────────────────────────
-  const adminHash = await bcrypt.hash("admin123", 10);
+  const adminHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
   const admin = await prisma.user.upsert({
     where: { email: "admin@kruzhok.ru" },
     update: {},
@@ -102,7 +112,7 @@ async function main() {
   });
 
   // ─── Teacher users ─────────────────────────────────────────────
-  const teacherHash = await bcrypt.hash("teacher123", 10);
+  const teacherHash = await bcrypt.hash(TEACHER_PASSWORD, 10);
 
   const teacherUser1 = await prisma.user.upsert({
     where: { email: "elena@kruzhok.ru" },
@@ -276,7 +286,7 @@ async function main() {
   }
 
   // ─── Demo client ───────────────────────────────────────────────
-  const clientHash = await bcrypt.hash("client123", 10);
+  const clientHash = await bcrypt.hash(CLIENT_PASSWORD, 10);
   const clientUser = await prisma.user.upsert({
     where: { email: "maria@example.com" },
     update: {},
@@ -345,10 +355,10 @@ async function main() {
 
   console.log("✅ Seed complete!");
   console.log("\n📋 Accounts:");
-  console.log("  Admin:   admin@kruzhok.ru   / admin123");
-  console.log("  Teacher: elena@kruzhok.ru   / teacher123");
-  console.log("  Teacher: olga@kruzhok.ru    / teacher123");
-  console.log("  Client:  maria@example.com  / client123");
+  console.log(`  Admin:   admin@kruzhok.ru   / ${ADMIN_PASSWORD}`);
+  console.log(`  Teacher: elena@kruzhok.ru   / ${TEACHER_PASSWORD}`);
+  console.log(`  Teacher: olga@kruzhok.ru    / ${TEACHER_PASSWORD}`);
+  console.log(`  Client:  maria@example.com  / ${CLIENT_PASSWORD}`);
 }
 
 main()

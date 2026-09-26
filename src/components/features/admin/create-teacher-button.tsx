@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogT
 export function CreateTeacherButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", bio: "", password: "teacher123" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", bio: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,7 +32,7 @@ export function CreateTeacherButton() {
       const d = await res.json();
       if (!res.ok) { setError(d.error || "Ошибка"); return; }
       setOpen(false);
-      setForm({ name: "", email: "", phone: "", bio: "", password: "teacher123" });
+      setForm({ name: "", email: "", phone: "", bio: "", password: "" });
       router.refresh();
     } catch { setError("Ошибка соединения"); }
     finally { setLoading(false); }

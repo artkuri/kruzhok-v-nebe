@@ -56,12 +56,9 @@ npm run dev
 
 ## Тестовые аккаунты (после seed)
 
-| Роль           | Email                | Пароль     |
-|----------------|----------------------|------------|
-| Администратор  | admin@kruzhok.ru     | admin123   |
-| Педагог        | elena@kruzhok.ru     | teacher123 |
-| Педагог        | olga@kruzhok.ru      | teacher123 |
-| Клиент         | maria@example.com    | client123  |
+Seed создаёт администратора `admin@kruzhok.ru`, педагогов и тестового клиента. Пароли не хранятся в коде:
+задайте их переменными `SEED_ADMIN_PASSWORD`, `SEED_TEACHER_PASSWORD`, `SEED_CLIENT_PASSWORD`,
+иначе seed сгенерирует случайные и один раз выведет их в консоль.
 
 ---
 
